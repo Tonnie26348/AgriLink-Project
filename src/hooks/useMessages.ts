@@ -17,6 +17,19 @@ export interface Message {
   receiver_name?: string;
 }
 
+interface MessageRow {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  content: string;
+  order_id: string | null;
+  listing_id: string | null;
+  is_read: boolean;
+  created_at: string;
+  sender: { full_name: string | null } | null;
+  receiver: { full_name: string | null } | null;
+}
+
 export const useMessages = (otherUserId?: string) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -44,18 +57,27 @@ export const useMessages = (otherUserId?: string) => {
 
       if (error) throw error;
 
-      const formattedMessages = (data || []).map((msg: any) => ({
-        ...msg,
+      const rows = (data as unknown as MessageRow[]) || [];
+      const formattedMessages: Message[] = rows.map((msg) => ({
+        id: msg.id,
+        sender_id: msg.sender_id,
+        receiver_id: msg.receiver_id,
+        content: msg.content,
+        order_id: msg.order_id,
+        listing_id: msg.listing_id,
+        is_read: msg.is_read,
+        created_at: msg.created_at,
         sender_name: msg.sender?.full_name || "User",
         receiver_name: msg.receiver?.full_name || "User",
       }));
 
       setMessages(formattedMessages);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching messages:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       toast({
         title: "Error fetching messages",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -80,11 +102,12 @@ export const useMessages = (otherUserId?: string) => {
 
       fetchMessages();
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending message:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       toast({
         title: "Error sending message",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return false;

@@ -15,6 +15,16 @@ interface Conversation {
   unread_count: number;
 }
 
+interface ConversationRow {
+  sender_id: string;
+  receiver_id: string;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+  sender: { full_name: string | null } | null;
+  receiver: { full_name: string | null } | null;
+}
+
 interface ConversationListProps {
   onSelectConversation: (userId: string, userName: string) => void;
 }
@@ -32,7 +42,6 @@ const ConversationList = ({ onSelectConversation }: ConversationListProps) => {
         setLoading(true);
         
         // This is a complex query to get unique conversations with last message
-        // In a real app, we might have a dedicated conversations table
         const { data, error } = await supabase
           .from("messages")
           .select(`
@@ -45,9 +54,10 @@ const ConversationList = ({ onSelectConversation }: ConversationListProps) => {
 
         if (error) throw error;
 
+        const rows = (data as unknown as ConversationRow[]) || [];
         const conversationMap = new Map<string, Conversation>();
 
-        (data || []).forEach((msg: any) => {
+        rows.forEach((msg) => {
           const otherUserId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
           const otherUserName = msg.sender_id === user.id 
             ? msg.receiver?.full_name 
