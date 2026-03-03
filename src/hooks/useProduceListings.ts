@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth-context-definition";
 import { useToast } from "@/hooks/use-toast";
 import { resizeImage } from "@/lib/image-utils";
+import { PostgrestError } from "@supabase/supabase-js";
 
 export interface ProduceListing {
   id: string;
@@ -93,7 +94,7 @@ export const useProduceListings = () => {
         .select();
 
       // Race the insert against our 15-second timeout
-      const { data, error } = (await Promise.race([insertPromise, timeoutPromise])) as any;
+      const { data, error } = (await Promise.race([insertPromise, timeoutPromise])) as { data: ProduceListing[] | null; error: PostgrestError | null };
 
       if (error) {
         console.error("CreateListing: Supabase error:", error);
