@@ -65,10 +65,19 @@ export const useProduceListings = () => {
   }, [user, toast]);
 
   const createListing = async (input: CreateListingInput) => {
-    if (!user) return { error: new Error("Not authenticated") };
+    if (!user) {
+      return { error: new Error("Not authenticated") };
+    }
+
+    // Create a controller to handle a timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out. Please check your internet and Supabase RLS policies.")), 15000)
+    );
 
     try {
-      const { data, error } = await supabase
+      console.log("CreateListing: Attempting insert...", input);
+      
+      const insertPromise = supabase
         .from("produce_listings")
         .insert({
           farmer_id: user.id,
@@ -81,24 +90,36 @@ export const useProduceListings = () => {
           harvest_date: input.harvest_date || null,
           image_url: input.image_url || null,
         })
-        .select()
-        .single();
+        .select();
 
-      if (error) throw error;
+      // Race the insert against our 15-second timeout
+      const { data, error } = (await Promise.race([insertPromise, timeoutPromise])) as any;
 
-      setListings((prev) => [data, ...prev]);
+      if (error) {
+        console.error("CreateListing: Supabase error:", error);
+        throw error;
+      }
+
+      const newListing = data?.[0];
+      if (newListing) {
+        setListings((prev) => [newListing, ...prev]);
+      }
+      
       toast({
         title: "Listing created!",
         description: `${input.name} has been added to your listings.`,
       });
-      return { data, error: null };
+      
+      return { data: newListing, error: null };
     } catch (error: unknown) {
+      const err = error as Error;
+      console.error("CreateListing: Process failed:", err);
       toast({
-        title: "Error creating listing",
-        description: (error as Error).message,
+        title: "Could not add listing",
+        description: err.message || "The database didn't respond in time.",
         variant: "destructive",
       });
-      return { data: null, error: error as Error };
+      return { data: null, error: err };
     }
   };
 

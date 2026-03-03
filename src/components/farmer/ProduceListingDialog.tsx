@@ -107,23 +107,28 @@ const ProduceListingDialog = ({
 
   const handleSubmit = async (values: ListingFormValues) => {
     setSubmitting(true);
-    const result = await onSubmit({
-      name: values.name,
-      category: values.category,
-      price_per_unit: values.price_per_unit,
-      unit: values.unit,
-      quantity_available: values.quantity_available,
-      description: values.description,
-      harvest_date: values.harvest_date,
-      image_url: imageUrl || undefined,
-    });
-    setSubmitting(false);
+    try {
+      const result = await onSubmit({
+        name: values.name,
+        category: values.category,
+        price_per_unit: values.price_per_unit,
+        unit: values.unit,
+        quantity_available: values.quantity_available,
+        description: values.description,
+        harvest_date: values.harvest_date,
+        image_url: imageUrl || undefined,
+      });
+      setSubmitting(false);
 
-    if (!result.error) {
-      form.reset();
-      setImageUrl(null);
-      onSuccess?.();
-      onOpenChange(false);
+      if (!result.error) {
+        form.reset();
+        setImageUrl(null);
+        onSuccess?.();
+        onOpenChange(false);
+      }
+    } catch (err) {
+      setSubmitting(false);
+      console.error("ProduceListingDialog: Error in handleSubmit:", err);
     }
   };
 
