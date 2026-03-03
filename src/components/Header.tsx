@@ -1,16 +1,18 @@
- import { useState } from "react";
- import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
- import { Menu, X, Leaf, LogOut, Tractor, ShoppingBag, UserCircle, ClipboardList } from "lucide-react";
- import { useAuth } from "@/contexts/auth-context-definition";
- import CartSheet from "@/components/cart/CartSheet";
- import { useScrollToSection } from "@/hooks/use-scroll-to-section";
+import { Menu, X, Leaf, LogOut, Tractor, ShoppingBag, UserCircle, ClipboardList, MessageSquare } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context-definition";
+import CartSheet from "@/components/cart/CartSheet";
+import { useScrollToSection } from "@/hooks/use-scroll-to-section";
+import MessagesDialog from "@/components/marketplace/MessagesDialog";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-   const { user, userRole, signOut } = useAuth();
-   const navigate = useNavigate();
-   const scrollToSection = useScrollToSection();
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const { user, userRole, signOut } = useAuth();
+  const navigate = useNavigate();
+  const scrollToSection = useScrollToSection();
 
   const navLinks = [
     { label: "Home", to: "/" },
@@ -21,24 +23,24 @@ const Header = () => {
     { label: "Marketplace", to: "/marketplace" },
   ];
 
-   const handleSignOut = async () => {
-     await signOut();
-     navigate("/");
-   };
- 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-           <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-soft group-hover:shadow-glow transition-shadow duration-300">
               <Leaf className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="text-xl font-display font-bold text-foreground">
               Agri<span className="text-primary">Link</span>
             </span>
-           </Link>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -73,47 +75,55 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-             <CartSheet />
-             {user ? (
-               <>
-                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted">
-                   {userRole === "farmer" ? (
-                     <Tractor className="w-4 h-4 text-primary" />
-                   ) : (
-                     <ShoppingBag className="w-4 h-4 text-secondary" />
-                   )}
-                   <span className="text-sm font-medium text-foreground capitalize">
-                     {userRole || "User"}
-                   </span>
-                 </div>
-                 <Link to={userRole === "farmer" ? "/farmer/dashboard" : "/buyer/dashboard"}>
+            <CartSheet />
+            {user ? (
+              <>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted">
+                  {userRole === "farmer" ? (
+                    <Tractor className="w-4 h-4 text-primary" />
+                  ) : (
+                    <ShoppingBag className="w-4 h-4 text-secondary" />
+                  )}
+                  <span className="text-sm font-medium text-foreground capitalize">
+                    {userRole || "User"}
+                  </span>
+                </div>
+                <Link to={userRole === "farmer" ? "/farmer/dashboard" : "/buyer/dashboard"}>
                   <Button variant="ghost">Dashboard</Button>
-                 </Link>
-                 <Link to="/orders">
-                   <Button variant="ghost" size="icon" title="Orders">
-                     <ClipboardList className="w-5 h-5" />
-                   </Button>
-                 </Link>
-                 <Link to="/profile">
-                   <Button variant="ghost" size="icon" title="Profile">
-                     <UserCircle className="w-5 h-5" />
-                   </Button>
-                 </Link>
-                 <Button variant="ghost" onClick={handleSignOut}>
-                   <LogOut className="w-4 h-4 mr-2" />
-                   Log Out
-                 </Button>
-               </>
-             ) : (
-               <>
-                 <Button variant="ghost" asChild>
-                   <Link to="/login">Log In</Link>
-                 </Button>
-                 <Button variant="default" asChild>
-                   <Link to="/signup">Get Started</Link>
-                 </Button>
-               </>
-             )}
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Messages"
+                  onClick={() => setIsMessagesOpen(true)}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                </Button>
+                <Link to="/orders">
+                  <Button variant="ghost" size="icon" title="Orders">
+                    <ClipboardList className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon" title="Profile">
+                    <UserCircle className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Button variant="ghost" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Log Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Log In</Link>
+                </Button>
+                <Button variant="default" asChild>
+                  <Link to="/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -160,50 +170,62 @@ const Header = () => {
                 );
               })}
               <div className="pt-4 px-4 border-t border-border mt-2">
-                 <CartSheet />
+                <CartSheet />
               </div>
               <div className="flex flex-col gap-2 pt-4 px-4 border-t border-border mt-2">
-                 {user ? (
-                   <>
-                     <div className="flex items-center justify-center gap-2 py-2">
-                       {userRole === "farmer" ? (
-                         <Tractor className="w-4 h-4 text-primary" />
-                       ) : (
-                         <ShoppingBag className="w-4 h-4 text-secondary" />
-                       )}
-                       <span className="text-sm font-medium text-foreground capitalize">
-                         {userRole || "User"}
-                       </span>
-                     </div>
-                     <Link to={userRole === "farmer" ? "/farmer/dashboard" : "/buyer/dashboard"}>
-                       <Button variant="ghost" className="w-full justify-center">Dashboard</Button>
-                     </Link>
-                     <Link to="/orders">
-                       <Button variant="ghost" className="w-full justify-center">Orders</Button>
-                     </Link>
-                     <Link to="/profile">
-                       <Button variant="ghost" className="w-full justify-center">Profile</Button>
-                     </Link>
-                     <Button variant="ghost" className="w-full justify-center" onClick={handleSignOut}>
-                       <LogOut className="w-4 h-4 mr-2" />
-                       Log Out
-                     </Button>
-                   </>
-                 ) : (
-                   <>
-                     <Button variant="ghost" className="w-full justify-center" asChild>
-                       <Link to="/login">Log In</Link>
-                     </Button>
-                     <Button variant="default" className="w-full justify-center" asChild>
-                       <Link to="/signup">Get Started</Link>
-                     </Button>
-                   </>
-                 )}
+                {user ? (
+                  <>
+                    <div className="flex items-center justify-center gap-2 py-2">
+                      {userRole === "farmer" ? (
+                        <Tractor className="w-4 h-4 text-primary" />
+                      ) : (
+                        <ShoppingBag className="w-4 h-4 text-secondary" />
+                      )}
+                      <span className="text-sm font-medium text-foreground capitalize">
+                        {userRole || "User"}
+                      </span>
+                    </div>
+                    <Link to={userRole === "farmer" ? "/farmer/dashboard" : "/buyer/dashboard"}>
+                      <Button variant="ghost" className="w-full justify-center">Dashboard</Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-center"
+                      onClick={() => {
+                        setIsMessagesOpen(true);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Messages
+                    </Button>
+                    <Link to="/orders">
+                      <Button variant="ghost" className="w-full justify-center">Orders</Button>
+                    </Link>
+                    <Link to="/profile">
+                      <Button variant="ghost" className="w-full justify-center">Profile</Button>
+                    </Link>
+                    <Button variant="ghost" className="w-full justify-center" onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Log Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="w-full justify-center" asChild>
+                      <Link to="/login">Log In</Link>
+                    </Button>
+                    <Button variant="default" className="w-full justify-center" asChild>
+                      <Link to="/signup">Get Started</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+      <MessagesDialog open={isMessagesOpen} onOpenChange={setIsMessagesOpen} />
     </nav>
   );
 };
