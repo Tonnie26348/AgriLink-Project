@@ -138,7 +138,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-fade-in">
+          <div className="md:hidden py-4 border-t border-border animate-fade-in max-h-[calc(100vh-64px)] overflow-y-auto">
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => {
                 if (link.to.startsWith("/#")) {
