@@ -144,16 +144,25 @@ export const useOrders = () => {
   }, [user, userRole, toast]);
 
   const createOrder = async (input: CreateOrderInput): Promise<boolean> => {
-    if (!user) return false;
+    if (!user) {
+      console.error("CreateOrder: No user found");
+      return false;
+    }
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out. Please check your internet and Supabase RLS policies.")), 15000)
+    );
 
     try {
+      console.log("CreateOrder: Starting process...", input);
       const totalAmount = input.items.reduce(
         (acc, item) => acc + item.quantity * item.price_per_unit,
         0
       );
 
       // 1. Create the order
-      const { data: order, error: orderError } = await supabase
+      console.log("CreateOrder: Inserting order row...");
+      const orderInsertPromise = supabase
         .from("orders")
         .insert({
           buyer_id: user.id,
@@ -166,9 +175,15 @@ export const useOrders = () => {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      const { data: order, error: orderError } = (await Promise.race([orderInsertPromise, timeoutPromise])) as any;
+
+      if (orderError) {
+        console.error("CreateOrder: Order insert error:", orderError);
+        throw orderError;
+      }
 
       // 2. Create the order items
+      console.log("CreateOrder: Inserting order items...");
       const orderItems = input.items.map((item) => ({
         order_id: order.id,
         listing_id: item.listing_id,
@@ -181,10 +196,13 @@ export const useOrders = () => {
         .from("order_items")
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error("CreateOrder: Order items insert error:", itemsError);
+        throw itemsError;
+      }
 
-      // 3. Update produce listing quantities (simplified for now)
-      // Ideally, this should be done in a database transaction or a Postgres function
+      // 3. Update produce listing quantities
+      console.log("CreateOrder: Updating stock quantities...");
       for (const item of input.items) {
         const { data: currentListing } = await supabase
             .from("produce_listings")
@@ -201,6 +219,7 @@ export const useOrders = () => {
         }
       }
 
+      console.log("CreateOrder: Success!");
       toast({
         title: "Order placed!",
         description: "Your order has been sent to the farmer.",
@@ -209,11 +228,11 @@ export const useOrders = () => {
       fetchOrders();
       return true;
     } catch (error: unknown) {
-      console.error("Error creating order:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      const err = error as Error;
+      console.error("CreateOrder: Process failed:", err);
       toast({
         title: "Order failed",
-        description: errorMessage,
+        description: err.message || "An unknown error occurred",
         variant: "destructive",
       });
       return false;
