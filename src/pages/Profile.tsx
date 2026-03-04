@@ -2,12 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context-definition";
 import { useProfile } from "@/hooks/useProfile";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { 
   User, 
   MapPin, 
@@ -19,11 +22,13 @@ import {
   Settings,
   ShieldCheck,
   Camera,
-  X
+  X,
+  Bell
 } from "lucide-react";
 
 const ProfilePage = () => {
   const { user, userRole } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const { profile, loading, updateProfile, uploadAvatar } = useProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,9 +37,11 @@ const ProfilePage = () => {
     full_name: "",
     phone: "",
     location: "",
+    email_notifications: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -42,6 +49,7 @@ const ProfilePage = () => {
         full_name: profile.full_name || "",
         phone: profile.phone || "",
         location: profile.location || "",
+        email_notifications: profile.email_notifications ?? true,
       });
     }
   }, [profile]);
@@ -49,6 +57,10 @@ const ProfilePage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleToggleNotifications = (checked: boolean) => {
+    setFormData((prev) => ({ ...prev, email_notifications: checked }));
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +80,32 @@ const ProfilePage = () => {
     setIsSaving(true);
     await updateProfile(formData);
     setIsSaving(false);
+  };
+
+  const handleChangePassword = async () => {
+    if (!user?.email) return;
+    
+    setIsResettingPassword(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/AgriLink/profile`,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Password reset email sent",
+        description: "Please check your inbox for instructions to reset your password.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error resetting password",
+        description: error.message,
+      });
+    } finally {
+      setIsResettingPassword(false);
+    }
   };
 
   if (loading && !profile) {
@@ -171,7 +209,18 @@ const ProfilePage = () => {
                     <ShieldCheck className="w-4 h-4 text-primary" />
                     <span className="font-medium">Password Protected</span>
                   </div>
-                  <Button variant="outline" size="sm" className="w-full text-xs">Change Password</Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-xs"
+                    onClick={handleChangePassword}
+                    disabled={isResettingPassword}
+                  >
+                    {isResettingPassword ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                    ) : null}
+                    Change Password
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -213,7 +262,7 @@ const ProfilePage = () => {
                           <Input
                             id="phone"
                             name="phone"
-                            placeholder="+91 00000 00000"
+                            placeholder="+254 700 000 000"
                             value={formData.phone}
                             onChange={handleChange}
                             className="pl-10"
@@ -242,14 +291,20 @@ const ProfilePage = () => {
 
                     <div className="pt-4 border-t border-border/10">
                       <h4 className="text-sm font-bold text-foreground mb-4">Notification Preferences</h4>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <div>
-                          <p className="text-sm font-medium">Email Notifications</p>
-                          <p className="text-xs text-muted-foreground">Receive updates about your orders and market trends.</p>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Bell className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold">Email Notifications</p>
+                            <p className="text-xs text-muted-foreground">Updates about your orders and market trends.</p>
+                          </div>
                         </div>
-                        <div className="w-10 h-6 rounded-full bg-primary/20 relative cursor-not-allowed">
-                          <div className="absolute right-1 top-1 w-4 h-4 rounded-full bg-primary" />
-                        </div>
+                        <Switch 
+                          checked={formData.email_notifications}
+                          onCheckedChange={handleToggleNotifications}
+                        />
                       </div>
                     </div>
                   </CardContent>
@@ -257,7 +312,7 @@ const ProfilePage = () => {
                     <Button 
                       type="submit" 
                       disabled={isSaving}
-                      className="min-w-[120px]"
+                      className="min-w-[120px] shadow-soft"
                     >
                       {isSaving ? (
                         <>

@@ -70,33 +70,39 @@ const ChatDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] h-[600px] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-4 border-b bg-muted/30">
+      <DialogContent className="sm:max-w-[450px] h-[85vh] sm:h-[600px] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl">
+        <DialogHeader className="p-4 border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
           <DialogTitle className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>{receiverName[0]}</AvatarFallback>
+            <Avatar className="h-9 w-9 border border-border/50">
+              <AvatarFallback className="bg-primary/10 text-primary">{receiverName[0]}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">{receiverName}</span>
+              <span className="text-sm font-bold leading-tight">{receiverName}</span>
               {listingName && (
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                  Re: {listingName}
+                <span className="text-[10px] text-muted-foreground line-clamp-1">
+                  Topic: {listingName}
                 </span>
               )}
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
+        <ScrollArea className="flex-1 px-4 py-6">
+          <div className="space-y-4 pb-4">
             {loading ? (
-              <div className="flex items-center justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center py-20 gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-primary/40" />
+                <p className="text-xs text-muted-foreground">Loading conversation...</p>
               </div>
             ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center opacity-60">
-                <MessageSquare className="h-10 w-10 mb-2" />
-                <p className="text-sm">No messages yet. Say hello!</p>
+              <div className="flex flex-col items-center justify-center py-20 text-center px-10">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <MessageSquare className="h-6 w-6 text-muted-foreground/40" />
+                </div>
+                <h3 className="text-sm font-semibold mb-1">No messages yet</h3>
+                <p className="text-xs text-muted-foreground">
+                  Send a message to start a conversation about this listing.
+                </p>
               </div>
             ) : (
               messages.map((msg) => {
@@ -107,15 +113,15 @@ const ChatDialog = ({
                     className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
+                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
                         isOwn
                           ? "bg-primary text-primary-foreground rounded-tr-none"
                           : "bg-muted text-foreground rounded-tl-none"
                       }`}
                     >
-                      <p>{msg.content}</p>
+                      <p className="leading-relaxed">{msg.content}</p>
                       <span
-                        className={`text-[10px] mt-1 block opacity-70 ${
+                        className={`text-[9px] mt-1.5 block font-medium opacity-60 ${
                           isOwn ? "text-right" : "text-left"
                         }`}
                       >
@@ -128,21 +134,27 @@ const ChatDialog = ({
                 );
               })
             )}
-            <div ref={scrollRef} />
+            <div ref={scrollRef} className="h-2" />
           </div>
         </ScrollArea>
 
-        <div className="p-4 border-t bg-background">
-          <form onSubmit={handleSendMessage} className="flex gap-2">
+        <div className="p-4 border-t bg-muted/30 sticky bottom-0">
+          <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
             <Input
               placeholder="Type your message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="flex-1"
+              className="flex-1 bg-background border-border/50 focus-visible:ring-primary shadow-sm"
+              autoFocus
             />
-            <Button type="submit" size="icon" disabled={sending || !newMessage.trim()}>
+            <Button 
+              type="submit" 
+              size="icon" 
+              className="h-10 w-10 shrink-0 shadow-soft"
+              disabled={sending || !newMessage.trim()}
+            >
               {sending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 h-4 animate-spin" />
               ) : (
                 <Send className="h-4 w-4" />
               )}

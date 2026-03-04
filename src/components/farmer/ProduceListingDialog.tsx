@@ -43,12 +43,12 @@ const listingSchema = z.object({
 type ListingFormValues = z.infer<typeof listingSchema>;
 
 const CATEGORIES = [
-  "Vegetables (Sukuma, Managu, etc.)",
-  "Fruits (Mangoes, Avocadoes, etc.)",
-  "Grains (Maize, Rice, Wheat)",
-  "Pulses (Beans, Ndengu, Njahi)",
+  "Vegetables",
+  "Fruits",
+  "Grains",
+  "Pulses",
   "Dairy & Poultry",
-  "Tubers (Potatoes, Cassava)",
+  "Tubers",
   "Spices & Herbs",
   "Other",
 ];

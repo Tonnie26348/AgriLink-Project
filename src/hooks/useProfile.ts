@@ -10,6 +10,7 @@ export interface Profile {
   phone: string | null;
   location: string | null;
   avatar_url: string | null;
+  email_notifications: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -61,31 +62,30 @@ export const useProfile = () => {
       setLoading(true);
       
       // Use the RPC for maximum reliability
-      // This avoids PGRST204 errors caused by RLS visibility on return data
       const { error: rpcError } = await supabase.rpc('update_user_profile', {
         p_full_name: updates.full_name,
         p_phone: updates.phone,
         p_location: updates.location,
-        p_avatar_url: updates.avatar_url
+        p_avatar_url: updates.avatar_url,
+        p_email_notifications: updates.email_notifications
       });
 
       if (rpcError) throw rpcError;
 
-      // Final step: manually fetch the latest profile data to update local state
+      // Final step: manually fetch the latest profile data
       await fetchProfile();
 
       toast({
         title: "Profile updated",
-        description: "Your profile information has been saved.",
+        description: "Your changes have been saved.",
       });
       return true;
     } catch (error: unknown) {
       console.error("Error updating profile:", error);
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-      const errorCode = (error && typeof error === 'object' && 'code' in error) ? String((error as Record<string, unknown>).code) : "No code";
       toast({
         title: "Update failed",
-        description: `${errorMessage} (Code: ${errorCode})`,
+        description: errorMessage,
         variant: "destructive",
       });
       return false;
