@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/auth-context-definition";
 import { useToast } from "@/hooks/use-toast";
 import { useOrders } from "@/hooks/useOrders";
 import { useMarketplace } from "@/hooks/useMarketplace";
+import { useFavorites } from "@/hooks/useFavorites";
 import OrderCard from "@/components/orders/OrderCard";
 import ConversationList from "@/components/marketplace/ConversationList";
 import ChatDialog from "@/components/marketplace/ChatDialog";
@@ -33,10 +34,11 @@ const BuyerDashboard = () => {
   const { signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"overview" | "market" | "orders" | "messages">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "market" | "orders" | "messages" | "favorites">("overview");
 
   const { orders, loading: ordersLoading } = useOrders();
   const { listings, loading: listingsLoading } = useMarketplace();
+  const { favorites, toggleFavorite, isFavorite, loading: favoritesLoading } = useFavorites();
 
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const [selectedChatUser, setSelectedChatUser] = useState<{ id: string; name: string } | null>(null);
@@ -44,11 +46,14 @@ const BuyerDashboard = () => {
   const pendingOrders = orders.filter((o) => !["delivered", "cancelled"].includes(o.status));
   const deliveredOrders = orders.filter((o) => o.status === "delivered");
 
+  // Filter listings to show only favorited ones
+  const favoritedListings = listings.filter(l => favorites.some(f => f.listing_id === l.id));
+
   const stats = [
     { label: "Total Orders", value: orders.length.toString(), icon: Package, color: "text-primary" },
     { label: "In Progress", value: pendingOrders.length.toString(), icon: Clock, color: "text-secondary" },
     { label: "Delivered", value: deliveredOrders.length.toString(), icon: ShoppingCart, color: "text-accent" },
-    { label: "Available Items", value: listings.length.toString(), icon: TrendingUp, color: "text-primary" },
+    { label: "Saved Items", value: favorites.length.toString(), icon: Heart, color: "text-primary" },
   ];
 
   const handleSelectConversation = (userId: string, userName: string) => {
@@ -80,6 +85,7 @@ const BuyerDashboard = () => {
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "market", label: "Market", icon: Search },
+    { id: "favorites", label: "Saved", icon: Heart },
     { id: "orders", label: "My Orders", icon: ShoppingBag },
     { id: "messages", label: "Messages", icon: MessageSquare },
   ] as const;
@@ -227,15 +233,12 @@ const BuyerDashboard = () => {
                     <Button onClick={() => setActiveTab("market")} variant="outline" className="w-full justify-start gap-2">
                       <Search className="w-4 h-4 text-secondary" /> Browse Market
                     </Button>
+                    <Button onClick={() => setActiveTab("favorites")} variant="outline" className="w-full justify-start gap-2">
+                      <Heart className="w-4 h-4 text-secondary" /> Saved Items
+                    </Button>
                     <Button onClick={() => setActiveTab("messages")} variant="outline" className="w-full justify-start gap-2">
                       <MessageSquare className="w-4 h-4 text-secondary" /> Inbox
                     </Button>
-                    <Link to="/marketplace" className="block">
-                      <Button variant="outline" className="w-full justify-start gap-2 group">
-                        <TrendingUp className="w-4 h-4 text-secondary" /> All Products
-                        <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
                   </CardContent>
                 </Card>
               </div>
@@ -274,7 +277,77 @@ const BuyerDashboard = () => {
                                📦
                              </div>
                            )}
-                           <Badge className="bg-secondary/10 text-secondary border-none">{item.category}</Badge>
+                           <Button 
+                             variant="ghost" 
+                             size="icon" 
+                             className={`h-8 w-8 rounded-full ${isFavorite(item.id) ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground'}`}
+                             aria-label="Save to favorites"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               toggleFavorite(item.id);
+                             }}
+                           >
+                             <Heart className={`w-4 h-4 ${isFavorite(item.id) ? 'fill-current' : ''}`} />
+                           </Button>
+                         </div>
+                         <h3 className="font-bold text-foreground group-hover:text-secondary transition-colors mb-1">{item.name}</h3>
+                         <p className="text-xs text-muted-foreground mb-4">by {item.farmer_name} • {item.farmer_location}</p>
+                         <div className="flex items-center justify-between mt-auto">
+                           <span className="font-bold text-secondary">Ksh{item.price_per_unit}/{item.unit}</span>
+                           <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">Shop</Button>
+                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === "favorites" && (
+            <Card className="shadow-soft border-border/50">
+              <CardHeader className="pb-3 border-b border-border/10">
+                <CardTitle className="text-2xl">Saved Items</CardTitle>
+                <CardDescription>Your favorite produce listings</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {favoritesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : favorites.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                    <p className="text-muted-foreground mb-4">You haven't saved any items yet</p>
+                    <Button onClick={() => setActiveTab("market")} variant="outline">Browse Market</Button>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {favoritedListings.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-secondary/30 transition-all cursor-pointer group flex flex-col h-full"
+                        onClick={() => navigate("/marketplace")}
+                      >
+                         <div className="flex items-start justify-between mb-3">
+                           {item.image_url ? (
+                             <img src={item.image_url} alt={item.name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover" />
+                           ) : (
+                             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-secondary/10 flex items-center justify-center text-2xl">
+                               📦
+                             </div>
+                           )}
+                           <Button 
+                             variant="ghost" 
+                             size="icon" 
+                             className="h-8 w-8 rounded-full text-red-500 hover:text-red-600"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               toggleFavorite(item.id);
+                             }}
+                           >
+                             <Heart className="w-4 h-4 fill-current" />
+                           </Button>
                          </div>
                          <h3 className="font-bold text-foreground group-hover:text-secondary transition-colors mb-1">{item.name}</h3>
                          <p className="text-xs text-muted-foreground mb-4">by {item.farmer_name} • {item.farmer_location}</p>

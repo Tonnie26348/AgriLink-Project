@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context-definition";
 import { useCart } from "@/contexts/cart-context-definition";
 import { useMarketplace, MarketplaceListing } from "@/hooks/useMarketplace";
+import { useFavorites } from "@/hooks/useFavorites";
 import OrderDialog from "@/components/marketplace/OrderDialog";
 import ChatDialog from "@/components/marketplace/ChatDialog";
 import ProduceCardSkeleton from "@/components/marketplace/ProduceCardSkeleton";
@@ -29,6 +30,7 @@ import {
   ArrowLeft,
   Calendar,
   MessageCircle,
+  Heart,
 } from "lucide-react";
 
 const EMOJI_MAP: Record<string, string> = {
@@ -48,6 +50,7 @@ import Footer from "@/components/Footer";
 const Marketplace = () => {
   const { user, userRole } = useAuth();
   const { addItem } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -190,6 +193,8 @@ const Marketplace = () => {
                   onOrder={handleOrderClick} 
                   onAddToCart={handleAddToCart}
                   onMessage={handleMessageClick}
+                  isFavorite={isFavorite(listing.id)}
+                  onToggleFavorite={() => toggleFavorite(listing.id)}
                 />
               ))}
             </div>
@@ -224,13 +229,15 @@ interface ProduceCardProps {
   onOrder: (listing: MarketplaceListing) => void;
   onAddToCart: (listing: MarketplaceListing) => void;
   onMessage: (listing: MarketplaceListing) => void;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
 }
 
-const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage }: ProduceCardProps) => {
+const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, isFavorite, onToggleFavorite }: ProduceCardProps) => {
   const categoryEmoji = EMOJI_MAP[listing.category] || "📦";
 
   return (
-    <Card className="overflow-hidden border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group">
+    <Card className="overflow-hidden border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group relative">
       <div className="relative h-48 bg-muted">
         {listing.image_url ? (
           <img
@@ -246,14 +253,29 @@ const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage }: ProduceCardPr
         <Badge className="absolute top-3 left-3 bg-background/90 text-foreground">
           {listing.category}
         </Badge>
-        <Button
-          size="icon"
-          variant="secondary"
-          className="absolute top-3 right-3 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-soft"
-          onClick={() => onMessage(listing)}
-        >
-          <MessageCircle className="h-4 w-4" />
-        </Button>
+        
+        {/* Action Buttons Overlay */}
+        <div className="absolute top-3 right-3 flex gap-2">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-soft"
+            onClick={() => onMessage(listing)}
+          >
+            <MessageCircle className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            className={`h-8 w-8 rounded-full shadow-soft transition-all ${isFavorite ? 'text-red-500 opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite();
+            }}
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </Button>
+        </div>
       </div>
       <CardContent className="p-4">
         <h3 className="font-semibold text-lg text-foreground mb-1 line-clamp-1">
