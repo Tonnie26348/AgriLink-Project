@@ -217,7 +217,29 @@ export const useProduceListings = () => {
 
   useEffect(() => {
     fetchListings();
-  }, [fetchListings]);
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('produce-listings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'produce_listings',
+          filter: `farmer_id=eq.${user?.id}`
+        },
+        () => {
+          console.log("Real-time listing update received");
+          fetchListings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchListings, user?.id]);
 
   return {
     listings,

@@ -8,6 +8,7 @@ import OrderCard from "@/components/orders/OrderCard";
 import ConversationList from "@/components/marketplace/ConversationList";
 import ChatDialog from "@/components/marketplace/ChatDialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Leaf, 
@@ -24,15 +25,18 @@ import {
   TrendingUp,
   UserCircle,
   MessageSquare,
+  LayoutDashboard,
+  ChevronRight,
 } from "lucide-react";
 
 const BuyerDashboard = () => {
   const { signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"overview" | "market" | "orders" | "messages">("overview");
+
   const { orders, loading: ordersLoading } = useOrders();
   const { listings, loading: listingsLoading } = useMarketplace();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const [selectedChatUser, setSelectedChatUser] = useState<{ id: string; name: string } | null>(null);
@@ -73,6 +77,13 @@ const BuyerDashboard = () => {
     }
   };
 
+  const tabs = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "market", label: "Market", icon: Search },
+    { id: "orders", label: "My Orders", icon: ShoppingBag },
+    { id: "messages", label: "Messages", icon: MessageSquare },
+  ] as const;
+
    return (
      <div className="min-h-screen bg-muted/30 flex flex-col">
        {/* Dedicated Buyer Header */}
@@ -88,9 +99,6 @@ const BuyerDashboard = () => {
            </Link>
 
            <div className="flex items-center gap-4">
-             <Link to="/marketplace" className="text-sm font-medium text-muted-foreground hover:text-secondary transition-colors">
-               Marketplace
-             </Link>
              <Link to="/profile">
                <Button 
                  variant="ghost" 
@@ -114,76 +122,150 @@ const BuyerDashboard = () => {
          </div>
        </header>
 
+       {/* Sub-navigation Tabs */}
+       <div className="bg-background border-b border-border/50 sticky top-16 z-30">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? "bg-secondary/10 text-secondary shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? "animate-pulse" : ""}`} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
        <main className="container mx-auto px-4 py-8 flex-1">
-         {/* Welcome Section */}
-         <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-           <div>
-             <h1 className="text-3xl font-display font-bold text-foreground mb-1">
-               Welcome Back! 🥬
-             </h1>
-             <p className="text-muted-foreground">
-               Fresh produce from your favorite local farms is waiting for you
-             </p>
-           </div>
-           <Link to="/marketplace">
-             <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-soft">
-               <Search className="w-5 h-5 mr-2" />
-               Browse Marketplace
-             </Button>
-           </Link>
-         </div>
+         {/* Tab Content */}
+         <div className="space-y-8 animate-fade-in">
+          {activeTab === "overview" && (
+            <>
+              {/* Welcome Section */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-display font-bold text-foreground mb-1">
+                    Buyer Dashboard 🥬
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Track your orders and find the best farm deals
+                  </p>
+                </div>
+                <Button onClick={() => setActiveTab("market")} size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-soft">
+                  <Search className="w-5 h-5 mr-2" />
+                  Find Produce
+                </Button>
+              </div>
 
-         {/* Stats Grid */}
-         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-           {stats.map((stat) => (
-             <Card key={stat.label} className="border-border/50 shadow-soft">
-               <CardContent className="pt-6">
-                 <div className="flex items-center gap-3">
-                   <div className={`p-2 rounded-lg bg-muted ${stat.color}`}>
-                     <stat.icon className="w-5 h-5" />
-                   </div>
-                   <div>
-                     <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                     <p className="text-xs text-muted-foreground">{stat.label}</p>
-                   </div>
-                 </div>
-               </CardContent>
-             </Card>
-           ))}
-         </div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {stats.map((stat) => (
+                  <Card key={stat.label} className="border-border/50 shadow-soft">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg bg-muted ${stat.color}`}>
+                          <stat.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                          <p className="text-xs text-muted-foreground">{stat.label}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-         {/* Main Content Grid */}
-         <div className="grid lg:grid-cols-3 gap-6">
-            {/* Featured Produce */}
-            <div className="lg:col-span-2">
-              <Card className="shadow-soft border-border/50">
-                <CardHeader className="flex flex-row items-center justify-between border-b border-border/10 pb-4">
-                  <div>
-                    <CardTitle className="text-xl">Featured Produce</CardTitle>
-                    <CardDescription>Fresh picks from trusted farmers</CardDescription>
+              <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 shadow-soft border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between border-b border-border/10 pb-4">
+                    <div>
+                      <CardTitle className="text-xl">Recent Orders</CardTitle>
+                      <CardDescription>Your latest purchases</CardDescription>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => setActiveTab("orders")}>View All</Button>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {ordersLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : orders.length === 0 ? (
+                      <div className="text-center py-12 px-6">
+                        <Package className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
+                        <p className="text-sm text-muted-foreground mb-4">You haven't placed any orders yet</p>
+                        <Button variant="outline" size="sm" onClick={() => setActiveTab("market")}>Start Shopping</Button>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-border/50">
+                        {orders.slice(0, 3).map((order) => (
+                          <div key={order.id} className="p-4 hover:bg-muted/30 transition-colors">
+                            <OrderCard order={order} viewAs="buyer" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-soft border-border/50">
+                  <CardHeader className="pb-3 border-b border-border/10">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-secondary" />
+                      Quick Access
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-3">
+                    <Button onClick={() => setActiveTab("market")} variant="outline" className="w-full justify-start gap-2">
+                      <Search className="w-4 h-4 text-secondary" /> Browse Market
+                    </Button>
+                    <Button onClick={() => setActiveTab("messages")} variant="outline" className="w-full justify-start gap-2">
+                      <MessageSquare className="w-4 h-4 text-secondary" /> Inbox
+                    </Button>
+                    <Link to="/marketplace" className="block">
+                      <Button variant="outline" className="w-full justify-start gap-2 group">
+                        <TrendingUp className="w-4 h-4 text-secondary" /> All Products
+                        <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </>
+          )}
+
+          {activeTab === "market" && (
+            <Card className="shadow-soft border-border/50">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/10 pb-4">
+                <div>
+                  <CardTitle className="text-2xl">Fresh Produce Market</CardTitle>
+                  <CardDescription>Browse items available for immediate purchase</CardDescription>
+                </div>
+                <Link to="/marketplace">
+                  <Button size="sm">Full Marketplace</Button>
+                </Link>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {listingsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-secondary" />
                   </div>
-                  <Link to="/marketplace">
-                    <Button variant="outline" size="sm">View All</Button>
-                  </Link>
-                </CardHeader>
-               <CardContent className="pt-6">
-                 {listingsLoading ? (
-                   <div className="flex items-center justify-center py-12">
-                     <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-                   </div>
-                 ) : listings.length === 0 ? (
-                   <div className="text-center py-12">
-                     <Package className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
-                     <p className="text-muted-foreground">No produce available right now</p>
-                   </div>
-                 ) : (
-                   <div className="grid xs:grid-cols-1 sm:grid-cols-2 gap-4">
-                     {listings.slice(0, 4).map((item) => (
-                       <div
-                         key={item.id}
-                         className="p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-secondary/30 transition-all cursor-pointer group flex flex-col h-full"
-                         onClick={() => navigate("/marketplace")}
-                       >
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listings.slice(0, 6).map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-secondary/30 transition-all cursor-pointer group flex flex-col h-full"
+                        onClick={() => navigate("/marketplace")}
+                      >
                          <div className="flex items-start justify-between mb-3">
                            {item.image_url ? (
                              <img src={item.image_url} alt={item.name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover" />
@@ -192,118 +274,57 @@ const BuyerDashboard = () => {
                                📦
                              </div>
                            )}
-                           <Button 
-                             variant="ghost" 
-                             size="icon" 
-                             className="h-8 w-8 rounded-full"
-                             aria-label="Save to favorites"
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               toast({ title: "Coming Soon", description: "Favorites feature is under development." });
-                             }}
-                           >
-                             <Heart className="w-4 h-4" />
-                           </Button>
+                           <Badge className="bg-secondary/10 text-secondary border-none">{item.category}</Badge>
                          </div>
-                         <div className="flex-1">
-                           <h3 className="font-bold text-foreground group-hover:text-secondary transition-colors line-clamp-1">{item.name}</h3>
-                           <p className="text-sm text-muted-foreground mb-3 truncate">{item.farmer_name}</p>
-                           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mb-4">
-                             <span className="flex items-center gap-1 shrink-0">
-                               <MapPin className="w-3 h-3" />
-                               {item.farmer_location}
-                             </span>
-                             <span className="hidden xs:inline text-muted-foreground/30">•</span>
-                             <span className="font-medium text-secondary truncate">{item.category}</span>
-                           </div>
+                         <h3 className="font-bold text-foreground group-hover:text-secondary transition-colors mb-1">{item.name}</h3>
+                         <p className="text-xs text-muted-foreground mb-4">by {item.farmer_name} • {item.farmer_location}</p>
+                         <div className="flex items-center justify-between mt-auto">
+                           <span className="font-bold text-secondary">Ksh{item.price_per_unit}/{item.unit}</span>
+                           <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">Shop</Button>
                          </div>
-                         <div className="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-border/5">
-                           <span className="font-bold text-secondary text-sm sm:text-base whitespace-nowrap">Ksh{item.price_per_unit}/{item.unit}</span>
-                           <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0">Shop</Button>
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 )}
-               </CardContent>
-             </Card>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-             <Card className="shadow-soft border-border/50 mt-6">
+          {activeTab === "orders" && (
+            <Card className="shadow-soft border-border/50">
               <CardHeader className="pb-3 border-b border-border/10">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-secondary" />
-                  Your Conversations
-                </CardTitle>
-                <CardDescription>Chat with farmers about your orders</CardDescription>
+                <CardTitle className="text-2xl">My Orders</CardTitle>
+                <CardDescription>Track status and history of your purchases</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {ordersLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border/50">
+                    {orders.map((order) => (
+                      <div key={order.id} className="py-4 first:pt-0 last:pb-0">
+                        <OrderCard order={order} viewAs="buyer" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {activeTab === "messages" && (
+            <Card className="shadow-soft border-border/50">
+              <CardHeader className="pb-3 border-b border-border/10">
+                <CardTitle className="text-2xl">Communications</CardTitle>
+                <CardDescription>Your messages with farmers</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <ConversationList onSelectConversation={handleSelectConversation} />
               </CardContent>
             </Card>
-            </div>
-
-            {/* Recent Orders */}
-            <div className="space-y-6">
-              <Card className="shadow-soft border-border/50 overflow-hidden">
-                <CardHeader className="pb-3 border-b border-border/10 bg-muted/20">
-                  <CardTitle className="text-xl">Your Orders</CardTitle>
-                  <CardDescription>Track your active purchases</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {ordersLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : orders.length === 0 ? (
-                    <div className="text-center py-12 px-6">
-                      <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
-                        <Package className="w-8 h-8 text-muted-foreground opacity-40" />
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-4">You haven't placed any orders yet</p>
-                      <Link to="/marketplace">
-                        <Button variant="outline" size="sm">Start Shopping</Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-border/50 max-h-[400px] overflow-y-auto">
-                      {orders.slice(0, 5).map((order) => (
-                        <div key={order.id} className="p-4 hover:bg-muted/30 transition-colors">
-                          <OrderCard order={order} viewAs="buyer" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-                {orders.length > 0 && (
-                  <div className="p-3 bg-muted/10 border-t border-border/50 text-center">
-                    <p className="text-xs text-muted-foreground font-medium">Showing {Math.min(5, orders.length)} of {orders.length} orders</p>
-                  </div>
-                )}
-              </Card>
-
-             <Card className="shadow-soft border-border/50">
-               <CardHeader className="pb-3 border-b border-border/10">
-                 <div className="flex items-center justify-between">
-                   <CardTitle className="text-lg flex items-center gap-2">
-                     <Heart className="w-5 h-5 text-secondary" />
-                     Saved Farms
-                   </CardTitle>
-                   <span className="px-2 py-0.5 rounded text-[10px] bg-secondary/10 text-secondary font-bold">
-                     SOON
-                   </span>
-                 </div>
-               </CardHeader>
-               <CardContent className="pt-6">
-                 <div className="text-center py-4">
-                   <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
-                     <Heart className="w-6 h-6 text-muted-foreground opacity-20" />
-                   </div>
-                   <p className="text-sm font-medium text-foreground mb-1">Stay Connected</p>
-                   <p className="text-xs text-muted-foreground">Follow your favorite farmers to get updates on their latest harvest.</p>
-                 </div>
-               </CardContent>
-             </Card>
-           </div>
+          )}
          </div>
        </main>
 

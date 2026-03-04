@@ -110,6 +110,27 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
 
   useEffect(() => {
     fetchListings();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('marketplace-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'produce_listings'
+        },
+        () => {
+          console.log("Real-time marketplace update received");
+          fetchListings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchListings]);
 
   useEffect(() => {

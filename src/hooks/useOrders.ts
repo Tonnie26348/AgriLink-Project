@@ -273,8 +273,30 @@ export const useOrders = () => {
   useEffect(() => {
     let isMounted = true;
     fetchOrders(isMounted);
-    return () => { isMounted = false; };
-  }, [fetchOrders]);
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('orders-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: userRole === 'buyer' ? `buyer_id=eq.${user?.id}` : `farmer_id=eq.${user?.id}`
+        },
+        () => {
+          console.log("Real-time order update received");
+          fetchOrders(isMounted);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [fetchOrders, user?.id, userRole]);
 
   return {
     orders,

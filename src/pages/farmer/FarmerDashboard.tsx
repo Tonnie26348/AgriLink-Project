@@ -52,6 +52,8 @@ const FarmerDashboard = () => {
   const { signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "orders" | "messages">("overview");
+
   const { 
     listings, 
     loading, 
@@ -138,6 +140,13 @@ const FarmerDashboard = () => {
     }
   };
 
+  const tabs = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "inventory", label: "Inventory", icon: Package },
+    { id: "orders", label: "Orders", icon: ShoppingCart },
+    { id: "messages", label: "Messages", icon: MessageSquare },
+  ] as const;
+
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Dedicated Dashboard Header */}
@@ -180,52 +189,139 @@ const FarmerDashboard = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 flex-1">
-        {/* Welcome Section */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground mb-1">
-              Farmer Dashboard 🌾
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your farm and track your sales performance
-            </p>
+      {/* Sub-navigation Tabs */}
+      <div className="bg-background border-b border-border/50 sticky top-16 z-30">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? "bg-primary/10 text-primary shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? "animate-pulse" : ""}`} />
+                {tab.label}
+              </button>
+            ))}
           </div>
-          <Button onClick={handleAddNew} size="lg" className="shadow-soft">
-            <Plus className="w-5 h-5 mr-2" />
-            Add New Listing
-          </Button>
         </div>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat) => (
-            <Card key={stat.label} className="border-border/50 shadow-soft">
-              <CardContent className="pt-6 px-4 sm:px-6">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="text-[10px] sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-lg sm:text-2xl font-bold text-foreground">{stat.value}</p>
-                  </div>
-                  <div className={`p-2 sm:p-3 rounded-xl bg-muted ${stat.color} shrink-0`}>
-                    <stat.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
+      <main className="container mx-auto px-4 py-8 flex-1">
+        {/* Tab Content */}
+        <div className="space-y-8 animate-fade-in">
+          {activeTab === "overview" && (
+            <>
+              {/* Welcome Section */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-display font-bold text-foreground mb-1">
+                    Dashboard Overview 🌾
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Performance summary and recent activity
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <Button onClick={handleAddNew} size="lg" className="shadow-soft">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Add New Listing
+                </Button>
+              </div>
 
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Listings Section */}
-          <div className="lg:col-span-2">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {stats.map((stat) => (
+                  <Card key={stat.label} className="border-border/50 shadow-soft">
+                    <CardContent className="pt-6 px-4 sm:px-6">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <p className="text-[10px] sm:text-sm text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
+                          <p className="text-lg sm:text-2xl font-bold text-foreground">{stat.value}</p>
+                        </div>
+                        <div className={`p-2 sm:p-3 rounded-xl bg-muted ${stat.color} shrink-0`}>
+                          <stat.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 shadow-soft border-border/50">
+                  <CardHeader className="pb-3 border-b border-border/10">
+                    <CardTitle className="text-xl">Sales Insights</CardTitle>
+                    <CardDescription>Your revenue and performance trends</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <SalesAnalytics orders={orders} />
+                  </CardContent>
+                </Card>
+
+                <div className="space-y-6">
+                  <Card className="shadow-soft border-border/50">
+                    <CardHeader className="pb-3 border-b border-border/10">
+                      <CardTitle className="text-xl">AI Price Guidance</CardTitle>
+                      <CardDescription>Get suggested prices for your items</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      {listings.length > 0 ? (
+                        <PriceInsights
+                          listings={listings.map((l) => ({
+                            id: l.id,
+                            name: l.name,
+                            price_per_unit: l.price_per_unit,
+                            unit: l.unit,
+                            quantity_available: l.quantity_available,
+                          }))}
+                        />
+                      ) : (
+                        <div className="text-center py-6">
+                          <TrendingUp className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-2" />
+                          <p className="text-xs text-muted-foreground">Add listings to see insights</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-soft border-border/50 bg-gradient-to-br from-primary/5 to-transparent">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Quick Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Button onClick={() => setActiveTab("inventory")} variant="outline" className="w-full justify-start gap-2">
+                        <Package className="w-4 h-4 text-primary" /> Manage Inventory
+                      </Button>
+                      <Button onClick={() => setActiveTab("orders")} variant="outline" className="w-full justify-start gap-2">
+                        <ShoppingCart className="w-4 h-4 text-primary" /> View Orders
+                      </Button>
+                      <Link to="/marketplace" className="block">
+                        <Button variant="outline" className="w-full justify-start gap-2 group">
+                          <TrendingUp className="w-4 h-4 text-primary" /> Market Trends 
+                          <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === "inventory" && (
             <Card className="shadow-soft border-border/50">
               <CardHeader className="flex flex-row items-center justify-between border-b border-border/10 pb-4">
                 <div>
-                  <CardTitle className="text-xl">Active Inventory</CardTitle>
-                  <CardDescription>Your produce currently available for sale</CardDescription>
+                  <CardTitle className="text-2xl">Inventory Management</CardTitle>
+                  <CardDescription>Edit, hide, or delete your produce listings</CardDescription>
                 </div>
+                <Button onClick={handleAddNew} size="sm">
+                  <Plus className="w-4 h-4 mr-2" /> New Listing
+                </Button>
               </CardHeader>
               <CardContent className="pt-6">
                 {loading ? (
@@ -234,14 +330,9 @@ const FarmerDashboard = () => {
                   </div>
                 ) : listings.length === 0 ? (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
-                      <Package className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground font-medium mb-4">You haven't listed any produce yet</p>
-                    <Button onClick={handleAddNew} variant="outline">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First Listing
-                    </Button>
+                    <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                    <p className="text-muted-foreground mb-4">You haven't listed any produce yet</p>
+                    <Button onClick={handleAddNew} variant="outline">Add First Listing</Button>
                   </div>
                 ) : (
                   <div className="grid gap-4">
@@ -283,36 +374,19 @@ const FarmerDashboard = () => {
                           </span>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Open menu">
+                              <Button variant="ghost" size="icon" className="h-9 w-9">
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleEdit(listing)}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Edit Details
+                                <Edit className="w-4 h-4 mr-2" /> Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => toggleAvailability(listing.id, !listing.is_available)}
-                              >
-                                {listing.is_available ? (
-                                  <>
-                                    <EyeOff className="w-4 h-4 mr-2" />
-                                    Hide from Market
-                                  </>
-                                ) : (
-                                  <>
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    Make Public
-                                  </>
-                                )}
+                              <DropdownMenuItem onClick={() => toggleAvailability(listing.id, !listing.is_available)}>
+                                {listing.is_available ? <><EyeOff className="w-4 h-4 mr-2" /> Hide</> : <><Eye className="w-4 h-4 mr-2" /> Show</>}
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDelete(listing.id)}
-                                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete Permanently
+                              <DropdownMenuItem onClick={() => handleDelete(listing.id)} className="text-destructive">
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -323,112 +397,48 @@ const FarmerDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          )}
 
-            <Card className="shadow-soft border-border/50 mt-6">
-              <CardHeader className="pb-3 border-b border-border/10">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-primary" />
-                  Recent Conversations
-                </CardTitle>
-                <CardDescription>Chat with buyers about your produce</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <ConversationList onSelectConversation={handleSelectConversation} />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Price Insights & Orders */}
-          <div className="space-y-6">
+          {activeTab === "orders" && (
             <Card className="shadow-soft border-border/50">
               <CardHeader className="pb-3 border-b border-border/10">
-                <CardTitle className="text-xl">Sales Insights</CardTitle>
-                <CardDescription>Your revenue and performance trends</CardDescription>
+                <CardTitle className="text-2xl">Manage Orders</CardTitle>
+                <CardDescription>Update status and track your sales</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <SalesAnalytics orders={orders} />
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-soft border-border/50">
-              <CardHeader className="pb-3 border-b border-border/10">
-                <CardTitle className="text-xl">AI Price Guidance</CardTitle>
-                <CardDescription>Get suggested prices for your items</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {listings.length > 0 ? (
-                  <PriceInsights
-                    listings={listings.map((l) => ({
-                      id: l.id,
-                      name: l.name,
-                      price_per_unit: l.price_per_unit,
-                      unit: l.unit,
-                      quantity_available: l.quantity_available,
-                    }))}
-                  />
-                ) : (
-                  <div className="text-center py-6">
-                    <TrendingUp className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-2" />
-                    <p className="text-xs text-muted-foreground">Add listings to see insights</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-soft border-border/50 overflow-hidden">
-              <CardHeader className="pb-3 border-b border-border/10 bg-muted/20">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">Recent Orders</CardTitle>
-                  {orders.length > 0 && (
-                    <span className="px-2 py-0.5 rounded text-[10px] bg-primary text-primary-foreground font-bold">
-                      {pendingOrders.length} NEW
-                    </span>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0 px-0">
                 {ordersLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-12 px-6">
-                    <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
-                      <ShoppingCart className="w-6 h-6 text-muted-foreground opacity-50" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">No orders received yet</p>
+                  <div className="text-center py-12">
+                    <ShoppingCart className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                    <p className="text-muted-foreground">No orders received yet</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border/50 max-h-[500px] overflow-y-auto">
+                  <div className="divide-y divide-border/50">
                     {orders.map((order) => (
-                      <div key={order.id} className="p-4 hover:bg-muted/30 transition-colors">
-                        <OrderCard
-                          order={order}
-                          viewAs="farmer"
-                          onUpdateStatus={updateOrderStatus}
-                        />
+                      <div key={order.id} className="py-4 first:pt-0 last:pb-0">
+                        <OrderCard order={order} viewAs="farmer" onUpdateStatus={updateOrderStatus} />
                       </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
+          )}
 
-            <Card className="shadow-soft border-border/50 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Explore Marketplace</CardTitle>
-                <CardDescription>See what other farmers are selling and check current trends</CardDescription>
+          {activeTab === "messages" && (
+            <Card className="shadow-soft border-border/50">
+              <CardHeader className="pb-3 border-b border-border/10">
+                <CardTitle className="text-2xl">Buyer Messages</CardTitle>
+                <CardDescription>Communication with potential customers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Link to="/marketplace">
-                  <Button variant="outline" className="w-full group">
-                    Go to Marketplace
-                    <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+              <CardContent className="pt-6">
+                <ConversationList onSelectConversation={handleSelectConversation} />
               </CardContent>
             </Card>
-          </div>
+          )}
         </div>
       </main>
 
