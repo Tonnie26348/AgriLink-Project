@@ -46,13 +46,15 @@ import {
   ChevronRight,
   UserCircle,
   MessageSquare,
+  Bot,
+  Sparkles
 } from "lucide-react";
 
 const FarmerDashboard = () => {
   const { signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "orders" | "messages">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "orders" | "messages" | "ai-insights">("overview");
 
   const { 
     listings, 
@@ -144,13 +146,14 @@ const FarmerDashboard = () => {
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "inventory", label: "Inventory", icon: Package },
     { id: "orders", label: "Orders", icon: ShoppingCart },
+    { id: "ai-insights", label: "AI Insights", icon: Bot },
     { id: "messages", label: "Messages", icon: MessageSquare },
   ] as const;
 
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Dedicated Dashboard Header */}
-      <header className="bg-background border-b border-border/50 h-16 sticky top-0 z-40">
+      <header className="bg-background border-b border-border/50 h-16 sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
@@ -162,7 +165,7 @@ const FarmerDashboard = () => {
           </Link>
 
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border border-border/50">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-xs font-medium text-foreground">Live Market</span>
             </div>
@@ -263,22 +266,34 @@ const FarmerDashboard = () => {
                 </Card>
 
                 <div className="space-y-6">
-                  <Card className="shadow-soft border-border/50">
+                  <Card className="shadow-soft border-border/50 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Sparkles className="w-12 h-12 text-primary" />
+                    </div>
                     <CardHeader className="pb-3 border-b border-border/10">
                       <CardTitle className="text-xl">AI Price Guidance</CardTitle>
                       <CardDescription>Get suggested prices for your items</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                       {listings.length > 0 ? (
-                        <PriceInsights
-                          listings={listings.map((l) => ({
-                            id: l.id,
-                            name: l.name,
-                            price_per_unit: l.price_per_unit,
-                            unit: l.unit,
-                            quantity_available: l.quantity_available,
-                          }))}
-                        />
+                        <div className="space-y-4">
+                          <PriceInsights
+                            listings={listings.map((l) => ({
+                              id: l.id,
+                              name: l.name,
+                              price_per_unit: l.price_per_unit,
+                              unit: l.unit,
+                              quantity_available: l.quantity_available,
+                            }))}
+                          />
+                          <Button 
+                            variant="link" 
+                            className="w-full text-primary gap-1"
+                            onClick={() => setActiveTab("ai-insights")}
+                          >
+                            View Full Market Analysis <ChevronRight className="w-4 h-4" />
+                          </Button>
+                        </div>
                       ) : (
                         <div className="text-center py-6">
                           <TrendingUp className="w-8 h-8 mx-auto text-muted-foreground opacity-30 mb-2" />
@@ -296,13 +311,13 @@ const FarmerDashboard = () => {
                       <Button onClick={() => setActiveTab("inventory")} variant="outline" className="w-full justify-start gap-2">
                         <Package className="w-4 h-4 text-primary" /> Manage Inventory
                       </Button>
-                      <Button onClick={() => setActiveTab("orders")} variant="outline" className="w-full justify-start gap-2">
-                        <ShoppingCart className="w-4 h-4 text-primary" /> View Orders
+                      <Button onClick={() => setActiveTab("ai-insights")} variant="outline" className="w-full justify-start gap-2 group">
+                        <Bot className="w-4 h-4 text-primary" /> Full Market Analysis
+                        <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
                       </Button>
                       <Link to="/marketplace" className="block">
                         <Button variant="outline" className="w-full justify-start gap-2 group">
-                          <TrendingUp className="w-4 h-4 text-primary" /> Market Trends 
-                          <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
+                          <TrendingUp className="w-4 h-4 text-primary" /> Browse Marketplace
                         </Button>
                       </Link>
                     </CardContent>
@@ -428,6 +443,22 @@ const FarmerDashboard = () => {
             </Card>
           )}
 
+          {activeTab === "ai-insights" && (
+            <div className="animate-fade-in">
+              <Link to="/ai-insights" className="block">
+                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 text-center hover:bg-primary/10 transition-all group">
+                  <Bot className="w-16 h-16 text-primary mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                  <h2 className="text-2xl font-display font-bold text-foreground mb-2">Deep Market Analysis</h2>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Access real-time trends, seasonal predictions, and regional demand heatmaps 
+                    powered by Gemini AI.
+                  </p>
+                  <Button size="lg" className="shadow-soft">Open Full Analyst Page</Button>
+                </div>
+              </Link>
+            </div>
+          )}
+
           {activeTab === "messages" && (
             <Card className="shadow-soft border-border/50">
               <CardHeader className="pb-3 border-b border-border/10">
@@ -441,6 +472,58 @@ const FarmerDashboard = () => {
           )}
         </div>
       </main>
+
+      {/* Add/Edit Dialog */}
+      <ProduceListingDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        listing={editingListing}
+        onSubmit={handleSubmit}
+        onUploadImage={uploadImage}
+        onSuccess={refetch}
+      />
+
+      {/* Chat Dialog */}
+      {selectedChatUser && (
+        <ChatDialog
+          open={chatDialogOpen}
+          onOpenChange={setChatDialogOpen}
+          receiverId={selectedChatUser.id}
+          receiverName={selectedChatUser.name}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Listing</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this listing? This action cannot be undone and will remove it from the marketplace.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete Listing
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Simple Dashboard Footer */}
+      <footer className="py-6 border-t border-border/50 mt-auto bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-xs text-muted-foreground">
+            © 2024 AgriLink Farmer Portal. All produce data is secured.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default FarmerDashboard;
 
       {/* Add/Edit Dialog */}
       <ProduceListingDialog

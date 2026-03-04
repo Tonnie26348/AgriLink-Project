@@ -166,7 +166,6 @@ const OrdersPage = () => {
             <div className="mt-12">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-foreground">Sales Insights</h2>
-                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10">COMING SOON</Badge>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
