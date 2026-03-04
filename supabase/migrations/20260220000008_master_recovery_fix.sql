@@ -1,6 +1,6 @@
 
--- AgriLink Master Recovery Fix
--- Resolves: 42703 (Undefined Column), Storage Permission Issues, and RPC Ambiguity
+-- AgriLink Master Recovery Fix (V2 - Idempotent)
+-- Resolves: 42703 (Undefined Column), 42710 (Duplicate Policy), and Storage Issues
 
 -- 1. Ensure Profiles Table Structure is Exact
 DO $$ 
@@ -23,7 +23,7 @@ BEGIN
     END IF;
 END $$;
 
--- 2. Redefine RPC with ULTIMATE Clarity (No Table Name Prefixes in COALESCE to avoid 42703)
+-- 2. Redefine RPC with ULTIMATE Clarity
 CREATE OR REPLACE FUNCTION public.update_user_profile(
     p_full_name TEXT DEFAULT NULL,
     p_phone TEXT DEFAULT NULL,
@@ -42,7 +42,6 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated';
     END IF;
 
-    -- Standard UPSERT logic
     INSERT INTO public.profiles (
         user_id, 
         full_name, 
@@ -77,7 +76,7 @@ GRANT EXECUTE ON FUNCTION public.update_user_profile(TEXT, TEXT, TEXT, TEXT) TO 
 INSERT INTO storage.buckets (id, name, public) VALUES ('profile-images', 'profile-images', true) ON CONFLICT (id) DO UPDATE SET public = true;
 INSERT INTO storage.buckets (id, name, public) VALUES ('produce-images', 'produce-images', true) ON CONFLICT (id) DO UPDATE SET public = true;
 
--- Wipe and recreate storage policies for absolute certainty
+-- Clean up ALL possible conflicting policies
 DROP POLICY IF EXISTS "Anyone can view profile images" ON storage.objects;
 DROP POLICY IF EXISTS "Users can upload their own profile image" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own profile image" ON storage.objects;
@@ -85,7 +84,12 @@ DROP POLICY IF EXISTS "Users can delete their own profile image" ON storage.obje
 DROP POLICY IF EXISTS "Authenticated users can upload profile images" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own profile images" ON storage.objects;
 DROP POLICY IF EXISTS "Profile images are public" ON storage.objects;
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Upload" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Update" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Delete" ON storage.objects;
 
+-- Recreate policies
 CREATE POLICY "Public Access" ON storage.objects FOR SELECT TO public USING (true);
 
 CREATE POLICY "Authenticated Upload" 
