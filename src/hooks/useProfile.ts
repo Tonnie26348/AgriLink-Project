@@ -61,7 +61,6 @@ export const useProfile = () => {
       setLoading(true);
       
       // Filter out fields that shouldn't be updated or cause issues
-      // and remove undefined values to avoid Supabase errors
       const cleanUpdates: Record<string, string | null> = {};
       
       if (updates.full_name !== undefined) cleanUpdates.full_name = updates.full_name;
@@ -70,17 +69,46 @@ export const useProfile = () => {
       if (updates.avatar_url !== undefined) cleanUpdates.avatar_url = updates.avatar_url;
       
       cleanUpdates.updated_at = new Date().toISOString();
-      cleanUpdates.user_id = user.id; // Crucial for upsert to work
 
-      const { data, error } = await supabase
+      // 1. Try to update existing profile first
+      const { data: updateData, error: updateError } = await supabase
         .from("profiles")
-        .upsert(cleanUpdates, { onConflict: 'user_id' })
-        .select()
-        .single();
+        .update(cleanUpdates)
+        .eq("user_id", user.id)
+        .select();
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      setProfile(data);
+      if (updateData && updateData.length > 0) {
+        setProfile(updateData[0]);
+      } else {
+        // 2. If no rows were updated, the profile might not exist. Try to insert.
+        const { data: insertData, error: insertError } = await supabase
+          .from("profiles")
+          .insert({
+            ...cleanUpdates,
+            user_id: user.id
+          })
+          .select();
+
+        if (insertError) {
+          // If it's a duplicate key error, it means the profile was created 
+          // in the meantime (e.g. by a background trigger). Just refresh.
+          if (insertError.code === '23505') {
+            await fetchProfile();
+            return true;
+          }
+          throw insertError;
+        }
+
+        if (insertData && insertData.length > 0) {
+          setProfile(insertData[0]);
+        } else {
+          // If still no data returned, manually fetch it
+          await fetchProfile();
+        }
+      }
+
       toast({
         title: "Profile updated",
         description: "Your profile information has been saved.",
