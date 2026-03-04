@@ -70,11 +70,11 @@ export const useProfile = () => {
       if (updates.avatar_url !== undefined) cleanUpdates.avatar_url = updates.avatar_url;
       
       cleanUpdates.updated_at = new Date().toISOString();
+      cleanUpdates.user_id = user.id; // Crucial for upsert to work
 
       const { data, error } = await supabase
         .from("profiles")
-        .update(cleanUpdates)
-        .eq("user_id", user.id)
+        .upsert(cleanUpdates, { onConflict: 'user_id' })
         .select()
         .single();
 
