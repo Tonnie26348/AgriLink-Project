@@ -81,11 +81,11 @@ const MPesaPaymentDialog = ({
         setPhoneNumber("");
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Payment error:", error);
       toast({
         title: "Payment failed",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
       setStep("input");

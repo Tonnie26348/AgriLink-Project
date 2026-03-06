@@ -58,11 +58,11 @@ const OrderReviewDialog = ({
       
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting review:", error);
       toast({
         title: "Error submitting review",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {

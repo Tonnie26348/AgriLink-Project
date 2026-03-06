@@ -88,11 +88,11 @@ const AIDiagnosisDialog = ({
         description: `Diagnosis: ${diagnosisResult.diagnosis}`,
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Diagnosis error:", error);
       toast({
         title: "Error analyzing image",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {

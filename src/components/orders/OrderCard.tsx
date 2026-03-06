@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Order, OrderStatus } from "@/hooks/useOrders";
 import { supabase } from "@/integrations/supabase/client";
 import OrderReviewDialog from "./OrderReviewDialog";
@@ -75,13 +75,7 @@ const OrderCard = ({ order, viewAs, onUpdateStatus }: OrderCardProps) => {
   const StatusIcon = statusConfig.icon;
   const availableStatuses = NEXT_STATUS[order.status] || [];
 
-  useEffect(() => {
-    if (order.status === "delivered" && viewAs === "buyer") {
-      checkReviewStatus();
-    }
-  }, [order.id, order.status, viewAs]);
-
-  const checkReviewStatus = async () => {
+  const checkReviewStatus = useCallback(async () => {
     const { data } = await supabase
       .from("reviews")
       .select("id")
@@ -89,7 +83,13 @@ const OrderCard = ({ order, viewAs, onUpdateStatus }: OrderCardProps) => {
       .maybeSingle();
     
     if (data) setHasReviewed(true);
-  };
+  }, [order.id]);
+
+  useEffect(() => {
+    if (order.status === "delivered" && viewAs === "buyer") {
+      checkReviewStatus();
+    }
+  }, [order.id, order.status, viewAs, checkReviewStatus]);
 
   return (
     <Card className="overflow-hidden">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth-context-definition";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,39 +21,30 @@ interface Conversation {
   unread_count: number;
 }
 
+interface ConversationItem {
+  id: string;
+  content: string;
+  created_at: string;
+  sender_id: string;
+  receiver_id: string;
+  is_read: boolean;
+  sender: { full_name: string } | null;
+  receiver: { full_name: string } | null;
+}
+
 const Inbox = () => {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedChat, setSelectedChat] = useState<{ id: string; name: string } | null>(null);
+  const [selectedChatChat, setSelectedChatChat] = useState<{ id: string; name: string } | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchConversations();
-      
-      // Subscribe to messages for updates
-      const channel = supabase
-        .channel('inbox-updates')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
-          fetchConversations();
-        })
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [user]);
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     if (!user) return;
 
     try {
       setLoading(true);
       
-      // Complex query to get unique conversations with last message
-      // In a real app, this might be a more optimized RPC or a view
       const { data, error } = await supabase
         .from('messages')
         .select(`
@@ -71,10 +62,9 @@ const Inbox = () => {
 
       if (error) throw error;
 
-      // Group by other user
       const convMap = new Map<string, Conversation>();
       
-      data.forEach((msg: any) => {
+      (data as unknown as ConversationItem[]).forEach((msg) => {
         const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
         const otherName = msg.sender_id === user.id 
           ? (msg.receiver?.full_name || "User") 
@@ -100,7 +90,24 @@ const Inbox = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchConversations();
+      
+      const channel = supabase
+        .channel('inbox-updates')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+          fetchConversations();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, fetchConversations]);
 
   const filteredConversations = conversations.filter(c => 
     c.other_user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||

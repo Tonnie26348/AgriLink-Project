@@ -55,7 +55,6 @@ import {
   AlertTriangle,
   Calendar as CalendarIcon
 } from "lucide-react";
-} from "lucide-react";
 
 const FarmerDashboard = () => {
   const { signOut } = useAuth();
