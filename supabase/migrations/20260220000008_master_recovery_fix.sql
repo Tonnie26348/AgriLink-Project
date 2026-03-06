@@ -28,7 +28,8 @@ CREATE OR REPLACE FUNCTION public.update_user_profile(
     p_full_name TEXT DEFAULT NULL,
     p_phone TEXT DEFAULT NULL,
     p_location TEXT DEFAULT NULL,
-    p_avatar_url TEXT DEFAULT NULL
+    p_avatar_url TEXT DEFAULT NULL,
+    p_email_notifications BOOLEAN DEFAULT NULL
 )
 RETURNS void
 LANGUAGE plpgsql
@@ -48,6 +49,7 @@ BEGIN
         phone, 
         location, 
         avatar_url, 
+        email_notifications,
         updated_at
     )
     VALUES (
@@ -56,6 +58,7 @@ BEGIN
         p_phone, 
         p_location, 
         p_avatar_url, 
+        COALESCE(p_email_notifications, true),
         now()
     )
     ON CONFLICT (user_id) DO UPDATE 
@@ -64,13 +67,14 @@ BEGIN
         phone = COALESCE(p_phone, profiles.phone),
         location = COALESCE(p_location, profiles.location),
         avatar_url = COALESCE(p_avatar_url, profiles.avatar_url),
+        email_notifications = COALESCE(p_email_notifications, profiles.email_notifications),
         updated_at = now();
 END;
 $$;
 
 -- 3. Reset Storage and Permissions
-GRANT EXECUTE ON FUNCTION public.update_user_profile(TEXT, TEXT, TEXT, TEXT) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.update_user_profile(TEXT, TEXT, TEXT, TEXT) TO service_role;
+GRANT EXECUTE ON FUNCTION public.update_user_profile(TEXT, TEXT, TEXT, TEXT, BOOLEAN) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_user_profile(TEXT, TEXT, TEXT, TEXT, BOOLEAN) TO service_role;
 
 -- Ensure buckets exist
 INSERT INTO storage.buckets (id, name, public) VALUES ('profile-images', 'profile-images', true) ON CONFLICT (id) DO UPDATE SET public = true;
