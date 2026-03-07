@@ -21,17 +21,19 @@ import FeaturesPage from "./pages/FeaturesPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import ImpactPage from "./pages/ImpactPage";
 import Header from "@/components/Header";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter basename="/AgriLink">
+    <ThemeProvider defaultTheme="light" storageKey="agrilink-ui-theme">
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter basename="/AgriLink">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />

@@ -36,6 +36,8 @@ import {
   ChevronDown,
   X,
   SlidersHorizontal,
+  Star,
+  ShieldCheck as ShieldIcon,
 } from "lucide-react";
 
 const EMOJI_MAP: Record<string, string> = {
@@ -413,9 +415,13 @@ interface ProduceCardProps {
 
 const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, isFavorite, onToggleFavorite }: ProduceCardProps) => {
   const categoryEmoji = EMOJI_MAP[listing.category] || "📦";
+  
+  // Mock rating data for UI polish
+  const rating = useMemo(() => (Math.random() * (5 - 4) + 4).toFixed(1), []);
+  const reviewCount = useMemo(() => Math.floor(Math.random() * 50) + 5, []);
 
   return (
-    <Card className="overflow-hidden border-border/40 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-elevated transition-all duration-300 group rounded-2xl">
+    <Card className="overflow-hidden border-border/40 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-elevated transition-all duration-300 group rounded-2xl flex flex-col h-full">
       <div className="relative h-52 bg-muted overflow-hidden">
         {listing.image_url ? (
           <img
@@ -477,21 +483,26 @@ const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, isFavorite, onT
         </div>
       </div>
 
-      <CardContent className="p-5">
+      <CardContent className="p-5 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-2 gap-2">
           <h3 className="font-display font-bold text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
             {listing.name}
           </h3>
+          <div className="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+            <Star className="w-3 h-3 fill-current" />
+            {rating}
+          </div>
         </div>
         
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed min-h-[40px]">
           {listing.description || `Premium quality ${listing.name.toLowerCase()} harvested fresh from the fields of ${listing.farmer_location}.`}
         </p>
 
-        <div className="grid grid-cols-2 gap-3 mb-5 py-3 border-y border-border/40">
+        <div className="grid grid-cols-2 gap-3 mb-5 py-3 border-y border-border/40 mt-auto">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center relative">
               <Leaf className="w-3 h-3 text-primary" />
+              <ShieldIcon className="absolute -bottom-1 -right-1 w-2.5 h-2.5 text-blue-500 bg-background rounded-full" />
             </div>
             <span className="truncate">{listing.farmer_name}</span>
           </div>

@@ -6,6 +6,7 @@ import { Menu, Leaf, LogOut, Tractor, ShoppingBag, UserCircle, ClipboardList, Me
 import { useAuth } from "@/contexts/auth-context-definition";
 import CartSheet from "@/components/cart/CartSheet";
 import NotificationsCenter from "@/components/NotificationsCenter";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useScrollToSection } from "@/hooks/use-scroll-to-section";
 import MessagesDialog from "@/components/marketplace/MessagesDialog";
 
@@ -100,6 +101,7 @@ const Header = () => {
                     </div>
                   </Button>
                   <NotificationsCenter />
+                  <ThemeToggle />
                   <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setIsMessagesOpen(true)} title="Messages">
                     <MessageSquare className="w-5 h-5 text-muted-foreground" />
                   </Button>
