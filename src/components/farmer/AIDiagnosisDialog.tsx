@@ -66,7 +66,22 @@ const AIDiagnosisDialog = ({
         body: { image_path: filePath },
       });
 
-      if (analysisError) throw analysisError;
+      if (analysisError) {
+        // Try to get a more descriptive error from the response body if it exists
+        let detailedError = analysisError.message;
+        if (analysisError instanceof Error && 'context' in analysisError) {
+          try {
+            const context = (analysisError as any).context;
+            if (context && typeof context.json === 'function') {
+              const body = await context.json();
+              if (body && body.error) detailedError = body.error;
+            }
+          } catch (e) {
+            console.error("Could not parse error body", e);
+          }
+        }
+        throw new Error(detailedError);
+      }
 
       const diagnosisResult = analysisData.diagnosis;
       setResult(diagnosisResult);
