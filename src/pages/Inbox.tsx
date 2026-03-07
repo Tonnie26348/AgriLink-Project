@@ -37,7 +37,7 @@ const Inbox = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedChatChat, setSelectedChatChat] = useState<{ id: string; name: string } | null>(null);
+  const [selectedChat, setSelectedChat] = useState<{ id: string; name: string } | null>(null);
 
   const fetchConversations = useCallback(async () => {
     if (!user) return;

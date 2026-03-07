@@ -120,13 +120,16 @@ const ProfilePage = () => {
   const dashboardPath = userRole === "farmer" ? "/farmer/dashboard" : "/buyer/dashboard";
 
   return (
-    <div className="min-h-screen bg-muted/30 pt-16">
+    <div className="min-h-screen bg-muted/30 pt-16 font-sans relative">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+      
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
-          <Button variant="ghost" asChild className="mb-6 -ml-2 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" asChild className="mb-6 -ml-2 text-muted-foreground hover:text-foreground hover:bg-background/50">
             <Link to={dashboardPath}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
@@ -136,35 +139,36 @@ const ProfilePage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Profile Overview Sidebar */}
             <div className="md:col-span-1 space-y-6">
-              <Card className="border-border/50 shadow-soft overflow-hidden">
-                <div className={`h-24 ${userRole === 'farmer' ? 'bg-primary/10' : 'bg-secondary/10'}`} />
-                <CardContent className="relative pt-12 pb-6 px-6 text-center">
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2">
-                    <div className="relative">
-                      <div className="w-24 h-24 rounded-full bg-background border-4 border-background shadow-md overflow-hidden flex items-center justify-center">
+              <Card className="border-border/50 shadow-soft overflow-hidden bg-background/60 backdrop-blur-sm">
+                <div className={`h-32 ${userRole === 'farmer' ? 'bg-gradient-to-br from-primary/20 to-primary/5' : 'bg-gradient-to-br from-secondary/20 to-secondary/5'}`} />
+                <CardContent className="relative pt-16 pb-8 px-6 text-center">
+                  <div className="absolute -top-16 left-1/2 -translate-x-1/2">
+                    <div className="relative group">
+                      <div className="w-32 h-32 rounded-full bg-background border-4 border-background shadow-elevated overflow-hidden flex items-center justify-center">
                         {profile?.avatar_url ? (
                           <img 
                             src={profile.avatar_url} 
                             alt={profile.full_name || "Profile"} 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <div className={`w-full h-full flex items-center justify-center ${userRole === 'farmer' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
-                            <User className="w-10 h-10" />
+                            <User className="w-12 h-12 opacity-50" />
                           </div>
                         )}
                         {isUploading && (
-                          <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                          <div className="absolute inset-0 bg-background/60 flex items-center justify-center backdrop-blur-sm">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
                           </div>
                         )}
                       </div>
                       <button 
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className={`absolute bottom-0 right-0 p-1.5 rounded-full shadow-md border-2 border-background transition-transform hover:scale-110 ${userRole === 'farmer' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+                        className={`absolute bottom-1 right-1 p-2 rounded-full shadow-lg border-2 border-background transition-transform hover:scale-110 active:scale-95 ${userRole === 'farmer' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
+                        title="Upload Avatar"
                       >
-                        <Camera className="w-3.5 h-3.5" />
+                        <Camera className="w-4 h-4" />
                       </button>
                       <input 
                         ref={fileInputRef}
@@ -175,17 +179,18 @@ const ProfilePage = () => {
                       />
                     </div>
                   </div>
-                  <h2 className="text-xl font-bold text-foreground mb-1 mt-2">
+                  <h2 className="text-2xl font-display font-bold text-foreground mb-1 mt-4">
                     {profile?.full_name || "User Name"}
                   </h2>
-                  <p className="text-sm text-muted-foreground capitalize mb-4">
+                  <p className="text-sm text-muted-foreground capitalize mb-6 flex items-center justify-center gap-2">
+                    {userRole === 'farmer' ? <span className="w-2 h-2 rounded-full bg-primary" /> : <span className="w-2 h-2 rounded-full bg-secondary" />}
                     {userRole} Member
                   </p>
                   <div className="flex justify-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      userRole === "farmer" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
+                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm ${
+                      userRole === "farmer" ? "bg-primary/5 text-primary border-primary/10" : "bg-secondary/5 text-secondary border-secondary/10"
                     }`}>
-                      Verified {userRole}
+                      Verified Account
                     </span>
                   </div>
                 </CardContent>
