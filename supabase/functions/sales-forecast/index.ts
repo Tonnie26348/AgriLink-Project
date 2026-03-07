@@ -81,8 +81,8 @@ Return a JSON object exactly like this:
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error: any) {
-    const errorMessage = error.message || "An unexpected error occurred";
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
     console.error("Sales Forecast Error:", errorMessage);
     return new Response(JSON.stringify({ 
       error: errorMessage,

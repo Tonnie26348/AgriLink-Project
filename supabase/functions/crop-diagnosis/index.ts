@@ -83,10 +83,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error: any) {
-    console.error("Crop Diagnosis Error:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    console.error("Crop Diagnosis Error:", errorMessage);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: errorMessage,
       details: "Please check if your Gemini API key is valid and image is clear."
     }), {
       status: 500,

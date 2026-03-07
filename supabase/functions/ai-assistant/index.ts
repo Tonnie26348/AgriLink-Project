@@ -53,10 +53,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error: any) {
-    console.error("AI Assistant Error:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    console.error("AI Assistant Error:", errorMessage);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: errorMessage,
       details: "Please verify your GEMINI_API_KEY_ASSISTANT."
     }), {
       status: 500,

@@ -132,10 +132,11 @@ Return a JSON object:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error: any) {
-    console.error("Function Error:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    console.error("Function Error:", errorMessage);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: errorMessage,
       details: "Check Supabase logs for more info" 
     }), {
       status: 500,
