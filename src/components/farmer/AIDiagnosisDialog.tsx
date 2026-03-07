@@ -71,7 +71,7 @@ const AIDiagnosisDialog = ({
         let detailedError = analysisError.message;
         if (analysisError instanceof Error && 'context' in analysisError) {
           try {
-            const context = (analysisError as any).context;
+            const context = (analysisError as { context?: { json: () => Promise<{ error?: string }> } }).context;
             if (context && typeof context.json === 'function') {
               const body = await context.json();
               if (body && body.error) detailedError = body.error;
