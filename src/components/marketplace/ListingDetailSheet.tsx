@@ -12,9 +12,11 @@ import {
   MessageCircle, 
   Info,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Store
 } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface ListingDetailSheetProps {
   listing: MarketplaceListing | null;
@@ -37,6 +39,7 @@ const ListingDetailSheet = ({
   isFavorite,
   onToggleFavorite
 }: ListingDetailSheetProps) => {
+  const navigate = useNavigate();
   if (!listing) return null;
 
   // Mock extended data for UI polish
@@ -135,26 +138,24 @@ const ListingDetailSheet = ({
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-secondary/10 relative z-10">
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Successful Sales</p>
-                  <p className="text-sm font-bold text-foreground">{totalSales} Orders</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Since</p>
-                  <p className="text-sm font-bold text-foreground">{farmerSince}</p>
-                </div>
+              <div className="grid grid-cols-2 gap-3 mt-6 pt-4 border-t border-secondary/10 relative z-10">
+                <Button 
+                  variant="outline" 
+                  className="h-10 rounded-xl border-secondary/20 hover:bg-secondary/10 text-secondary font-bold text-xs gap-2"
+                  onClick={() => navigate(`/farmer/${listing.farmer_id}`)}
+                >
+                  <Store className="w-4 h-4" />
+                  Visit Farm Store
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="h-10 rounded-xl hover:bg-secondary/10 text-secondary font-bold text-xs gap-2 group/btn"
+                  onClick={() => onMessage(listing)}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Contact Farmer
+                </Button>
               </div>
-              
-              <Button 
-                variant="ghost" 
-                className="w-full mt-4 h-10 rounded-xl hover:bg-secondary/10 text-secondary font-bold text-xs gap-2 group/btn"
-                onClick={() => onMessage(listing)}
-              >
-                <MessageCircle className="w-4 h-4" />
-                Contact Farmer
-                <ArrowRight className="w-3 h-3 ml-auto group-hover/btn:translate-x-1 transition-transform" />
-              </Button>
             </div>
           </div>
 

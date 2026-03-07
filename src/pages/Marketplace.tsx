@@ -345,6 +345,8 @@ const Marketplace = () => {
                     />
                   ))}
                 </div>
+
+                </div>
               </div>
             )}
           </div>
@@ -428,11 +430,12 @@ interface ProduceCardProps {
   onOrder: (listing: MarketplaceListing) => void;
   onAddToCart: (listing: MarketplaceListing) => void;
   onMessage: (listing: MarketplaceListing) => void;
+  onCardClick: () => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
 }
 
-const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, isFavorite, onToggleFavorite }: ProduceCardProps) => {
+const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, onCardClick, isFavorite, onToggleFavorite }: ProduceCardProps) => {
   const categoryEmoji = EMOJI_MAP[listing.category] || "📦";
   
   // Mock rating data for UI polish
@@ -440,7 +443,10 @@ const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, isFavorite, onT
   const reviewCount = useMemo(() => Math.floor(Math.random() * 50) + 5, []);
 
   return (
-    <Card className="overflow-hidden border-border/40 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-elevated transition-all duration-300 group rounded-2xl flex flex-col h-full">
+    <Card 
+      className="overflow-hidden border-border/40 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-elevated transition-all duration-300 group rounded-2xl flex flex-col h-full cursor-pointer"
+      onClick={onCardClick}
+    >
       <div className="relative h-52 bg-muted overflow-hidden">
         {listing.image_url ? (
           <img

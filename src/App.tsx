@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Marketplace from "./pages/Marketplace";
+import FarmerStorefront from "./pages/FarmerStorefront";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import FarmerDashboard from "@/pages/farmer/FarmerDashboard";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/farmer/:id" element={<FarmerStorefront />} />
               <Route path="/ai-insights" element={<AIInsightsPage />} />
               <Route path="/features" element={<FeaturesPage />} />
               <Route path="/how-it-works" element={<HowItWorksPage />} />
