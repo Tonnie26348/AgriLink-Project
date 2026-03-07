@@ -127,19 +127,27 @@ export const PriceInsights = ({
 
   if (!guidance && !loading) {
     return (
-      <Card className="border-dashed border-primary/30 bg-primary/5">
-        <CardContent className="pt-6 space-y-4">
+      <Card className="border-border/50 bg-background/60 backdrop-blur-md shadow-soft group hover:border-primary/30 transition-all overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+          <Sparkles className="w-16 h-16 text-primary" />
+        </div>
+        <CardContent className="pt-8 space-y-4 text-center">
           {listings.length > 1 && (
             <Select value={selectedId} onValueChange={handleListingChange}>
-              <SelectTrigger><SelectValue placeholder="Select a listing" /></SelectTrigger>
-              <SelectContent>{listings.map((l) => (<SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>))}</SelectContent>
+              <SelectTrigger className="rounded-xl border-border/50 h-10 bg-background/50"><SelectValue placeholder="Select a listing" /></SelectTrigger>
+              <SelectContent className="rounded-xl border-border/40 shadow-elevated">{listings.map((l) => (<SelectItem key={l.id} value={l.id} className="rounded-lg">{l.name}</SelectItem>))}</SelectContent>
             </Select>
           )}
-          <div className="text-center">
-            <Sparkles className="h-10 w-10 mx-auto text-primary mb-3" />
-            <h3 className="font-semibold text-foreground mb-2">AI Price Guidance</h3>
-            <p className="text-sm text-muted-foreground mb-4">Get suggested price range for <strong>{selected.name}</strong></p>
-            <Button onClick={fetchGuidance} className="gap-2"><Sparkles className="h-4 w-4" />Get Real-time Insight</Button>
+          <div className="py-4">
+            <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-inner">
+              <Sparkles className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-display font-bold text-foreground mb-2">AI Pricing Assistant</h3>
+            <p className="text-sm text-muted-foreground mb-6 max-w-[240px] mx-auto">Analyze market trends for <strong>{selected.name}</strong> to optimize your profit.</p>
+            <Button onClick={fetchGuidance} className="w-full h-12 rounded-xl shadow-soft gap-2 font-bold group/btn">
+              <Sparkles className="h-4 w-4 group-hover/btn:animate-pulse" />
+              Get AI Insight
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -148,8 +156,18 @@ export const PriceInsights = ({
 
   if (loading) {
     return (
-      <Card><CardHeader className="pb-3"><CardTitle className="flex items-center gap-2 text-base"><Sparkles className="h-4 w-4 animate-pulse text-primary" />Analyzing Marketplace...</CardTitle></CardHeader>
-        <CardContent className="space-y-3"><Skeleton className="h-16 w-full" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-12 w-full" /></CardContent>
+      <Card className="border-border/50 shadow-soft">
+        <CardHeader className="pb-3 border-b border-border/10">
+          <CardTitle className="flex items-center gap-2 text-base font-bold">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            Market Intelligence Analysis...
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6 space-y-4">
+          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-8 w-1/2 rounded-full" />
+          <Skeleton className="h-16 w-full rounded-2xl" />
+        </CardContent>
       </Card>
     );
   }
@@ -160,31 +178,49 @@ export const PriceInsights = ({
   const PositionIcon = positionInfo.icon;
 
   return (
-    <Card className="border-primary/20">
-      <CardHeader className="pb-3">
+    <Card className="border-border/50 bg-background/60 backdrop-blur-sm shadow-soft overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <CardHeader className="pb-3 border-b border-border/10">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base"><Sparkles className="h-4 w-4 text-primary" />AI Price Guidance</CardTitle>
-          <Button variant="ghost" size="sm" onClick={fetchGuidance} className="h-8 text-xs">Refresh</Button>
+          <CardTitle className="flex items-center gap-2 text-base font-bold">
+            <Sparkles className="h-4 w-4 text-primary" />
+            AI Pricing Strategy
+          </CardTitle>
+          <Button variant="ghost" size="icon" onClick={fetchGuidance} className="h-8 w-8 rounded-full text-muted-foreground hover:text-primary">
+            <Loader2 className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="bg-muted/50 rounded-lg p-4">
-          <p className="text-sm text-muted-foreground mb-1">Suggested Price Range</p>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-foreground">KES {guidance.suggestedPriceMin.toFixed(0)} - {guidance.suggestedPriceMax.toFixed(0)}</span>
-            <span className="text-muted-foreground">/{selected.unit}</span>
+      <CardContent className="pt-6 space-y-5">
+        <div className="bg-muted/30 rounded-2xl p-5 border border-border/50 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10 blur-xl" />
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Suggested Range</p>
+          <div className="flex items-baseline gap-1 mb-3">
+            <span className="text-2xl font-display font-black text-foreground tracking-tight">Ksh {guidance.suggestedPriceMin.toFixed(0)} - {guidance.suggestedPriceMax.toFixed(0)}</span>
+            <span className="text-sm font-medium text-muted-foreground">/{selected.unit}</span>
           </div>
-          <div className="mt-2 flex items-center gap-2">
-            <PositionIcon className={`h-4 w-4 ${positionInfo.color}`} />
-            <span className={`text-sm ${positionInfo.color}`}>{positionInfo.text}</span>
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold border shadow-sm ${
+            guidance.pricePosition === 'within' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-amber-50 text-amber-700 border-amber-100'
+          }`}>
+            <PositionIcon className="h-3 w-3" />
+            {positionInfo.text}
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Current Demand</span>
-          <Badge className={`${getDemandColor(guidance.demandLevel)} border`}>{guidance.demandLevel} Demand</Badge>
+
+        <div className="flex items-center justify-between px-1">
+          <span className="text-sm font-semibold text-muted-foreground">Market Demand</span>
+          <Badge className={`${getDemandColor(guidance.demandLevel)} border shadow-sm font-bold rounded-lg`}>{guidance.demandLevel} Demand</Badge>
         </div>
-        <div className="bg-accent/10 rounded-lg p-3 flex gap-3"><Info className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" /><p className="text-sm text-muted-foreground leading-relaxed">{guidance.reasoning}</p></div>
-        <p className="text-xs text-muted-foreground text-center pt-2 border-t border-border/50">This is AI-generated guidance based on live marketplace data.</p>
+
+        <div className="bg-accent/5 rounded-2xl p-4 border border-accent/10 flex gap-3 relative group">
+          <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 shadow-inner">
+            <Info className="h-4 w-4 text-accent" />
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            <span className="font-bold text-foreground">Insight:</span> {guidance.reasoning}
+          </p>
+        </div>
+        
+        <p className="text-[10px] text-muted-foreground/60 text-center italic">AI analysis based on county-level market data and seasonal trends.</p>
       </CardContent>
     </Card>
   );

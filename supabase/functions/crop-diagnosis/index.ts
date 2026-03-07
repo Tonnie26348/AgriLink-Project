@@ -33,23 +33,30 @@ serve(async (req) => {
        throw new Error(`Storage Download Error: ${downloadError.message}. Check if bucket 'crop-diagnoses' exists.`);
     }
 
-    // 2. Prepare Base64
+    // 2. Prepare Base64 safely
     const arrayBuffer = await imageData.arrayBuffer();
-    const base64Image = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = '';
+    const len = uint8Array.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    const base64Image = btoa(binary);
 
-    // 3. Call Gemini
+    // 3. Call Gemini with precise prompt
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{
           parts: [
-            { text: "Analyze this plant image and return a JSON object: { \"crop_type\": \"string\", \"diagnosis\": \"string\", \"confidence\": number, \"treatment_advice\": \"string\" }" },
+            { text: "Analyze this agricultural plant image. Identify the crop and any diseases or pests. Return ONLY a JSON object with: { \"crop_type\": \"common name\", \"diagnosis\": \"specific condition or 'Healthy'\", \"confidence\": float 0-1, \"treatment_advice\": \"concise actionable steps\" }" },
             { inline_data: { mime_type: "image/jpeg", data: base64Image } }
           ]
         }],
         generationConfig: {
           response_mime_type: "application/json",
+          temperature: 0.2,
         }
       }),
     });
