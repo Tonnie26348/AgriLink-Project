@@ -144,10 +144,10 @@ export const useOrders = () => {
     }
   }, [user, userRole, toast]);
 
-  const createOrder = async (input: CreateOrderInput): Promise<boolean> => {
+  const createOrder = async (input: CreateOrderInput): Promise<string | null> => {
     if (!user) {
       console.error("CreateOrder: No user found");
-      return false;
+      return null;
     }
 
     const timeoutPromise = new Promise((_, reject) =>
@@ -182,6 +182,8 @@ export const useOrders = () => {
         console.error("CreateOrder: Order insert error:", orderError);
         throw orderError;
       }
+
+      if (!order) throw new Error("Order was not created");
 
       // 2. Create the order items
       console.log("CreateOrder: Inserting order items...");
@@ -227,7 +229,7 @@ export const useOrders = () => {
       });
 
       fetchOrders();
-      return true;
+      return order.id;
     } catch (error: unknown) {
       const err = error as Error;
       console.error("CreateOrder: Process failed:", err);
@@ -236,7 +238,7 @@ export const useOrders = () => {
         description: err.message || "An unknown error occurred",
         variant: "destructive",
       });
-      return false;
+      return null;
     }
   };
 

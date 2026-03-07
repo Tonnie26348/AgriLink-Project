@@ -7,6 +7,8 @@ import { useOrders } from "@/hooks/useOrders";
 import OrderCard from "@/components/orders/OrderCard";
 import ProduceListingDialog from "@/components/farmer/ProduceListingDialog";
 import { SalesAnalytics } from "@/components/farmer/SalesAnalytics";
+import SalesForecastChart from "@/components/farmer/SalesForecastChart";
+
 import ConversationList from "@/components/marketplace/ConversationList";
 import ChatDialog from "@/components/marketplace/ChatDialog";
 import { Button } from "@/components/ui/button";
@@ -85,6 +87,31 @@ const FarmerDashboard = () => {
   const [selectedChatUser, setSelectedChatUser] = useState<{ id: string; name: string } | null>(null);
 
   const pendingOrders = orders.filter((o) => !["delivered", "cancelled"].includes(o.status));
+
+  const historicalSalesData = useMemo(() => {
+    // Group orders by month for the last 6 months
+    const last6Months = Array.from({ length: 6 }).map((_, i) => {
+      const date = subMonths(new Date(), 5 - i);
+      return {
+        month: format(date, "MMM"),
+        fullDate: startOfMonth(date),
+        sales: 0,
+      };
+    });
+
+    orders.forEach((order) => {
+      if (order.status === "cancelled") return;
+      const orderDate = startOfMonth(new Date(order.created_at));
+      const monthData = last6Months.find(
+        (m) => m.fullDate.getTime() === orderDate.getTime()
+      );
+      if (monthData) {
+        monthData.sales += Number(order.total_amount);
+      }
+    });
+
+    return last6Months;
+  }, [orders]);
 
   const stats = [
     { label: "Total Listings", value: listings.length.toString(), icon: Package, color: "text-primary" },
@@ -303,8 +330,11 @@ const FarmerDashboard = () => {
                       <CardTitle className="text-xl">Sales Insights</CardTitle>
                       <CardDescription>Your revenue and performance trends</CardDescription>
                     </CardHeader>
-                    <CardContent className="pt-6">
+                    <CardContent className="pt-6 space-y-8">
                       <SalesAnalytics orders={orders} />
+                      <div className="pt-6 border-t border-border/50">
+                        <SalesForecastChart historicalData={historicalSalesData} />
+                      </div>
                     </CardContent>
                   </Card>
                 </div>

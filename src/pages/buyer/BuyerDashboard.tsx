@@ -30,6 +30,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import MarketInsightsCard from "@/components/marketplace/MarketInsightsCard";
+
 const BuyerDashboard = () => {
   const { signOut } = useAuth();
   const { toast } = useToast();
@@ -222,25 +224,29 @@ const BuyerDashboard = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-soft border-border/50">
-                  <CardHeader className="pb-3 border-b border-border/10">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Heart className="w-5 h-5 text-secondary" />
-                      Quick Access
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-6 space-y-3">
-                    <Button onClick={() => setActiveTab("market")} variant="outline" className="w-full justify-start gap-2">
-                      <Search className="w-4 h-4 text-secondary" /> Browse Market
-                    </Button>
-                    <Button onClick={() => setActiveTab("favorites")} variant="outline" className="w-full justify-start gap-2">
-                      <Heart className="w-4 h-4 text-secondary" /> Saved Items
-                    </Button>
-                    <Button onClick={() => setActiveTab("messages")} variant="outline" className="w-full justify-start gap-2">
-                      <MessageSquare className="w-4 h-4 text-secondary" /> Inbox
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div className="space-y-6">
+                  <MarketInsightsCard />
+                  
+                  <Card className="shadow-soft border-border/50">
+                    <CardHeader className="pb-3 border-b border-border/10">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Star className="w-5 h-5 text-secondary" />
+                        Quick Access
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-3">
+                      <Button onClick={() => setActiveTab("market")} variant="outline" className="w-full justify-start gap-2">
+                        <Search className="w-4 h-4 text-secondary" /> Browse Market
+                      </Button>
+                      <Button onClick={() => setActiveTab("favorites")} variant="outline" className="w-full justify-start gap-2">
+                        <Heart className="w-4 h-4 text-secondary" /> Saved Items
+                      </Button>
+                      <Button onClick={() => setActiveTab("messages")} variant="outline" className="w-full justify-start gap-2">
+                        <MessageSquare className="w-4 h-4 text-secondary" /> Inbox
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </>
           )}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import DemandHeatmap from "@/components/insights/DemandHeatmap";
 
 interface MarketInsight {
   marketOverview: string;
@@ -13,7 +14,11 @@ interface MarketInsight {
     priceRange: string;
   }>;
   seasonalAdvice: string;
-  demandHeatmap: string;
+  demandHeatmap: Array<{
+    region: string;
+    level: number;
+    topCrops: string[];
+  }>;
 }
 
 const AIInsightsPage = () => {
@@ -98,19 +103,7 @@ const AIInsightsPage = () => {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-accent/5 border-accent/10 shadow-soft">
-                    <CardContent className="pt-6">
-                      <div className="flex gap-4">
-                        <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                          <MapPin className="w-5 h-5 text-accent" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-lg mb-1">Demand Heatmap</h3>
-                          <p className="text-muted-foreground leading-relaxed">{insight.demandHeatmap}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <DemandHeatmap data={insight.demandHeatmap} />
                 </div>
               ) : null}
 

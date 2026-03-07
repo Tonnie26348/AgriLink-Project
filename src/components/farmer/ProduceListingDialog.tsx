@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, Sparkles } from "lucide-react";
 import { ProduceListing, CreateListingInput } from "@/hooks/useProduceListings";
 
 const listingSchema = z.object({
@@ -103,6 +104,31 @@ const ProduceListingDialog = ({
     }
     setUploading(false);
     setIsResizing(false);
+  };
+
+  const [isSuggestingPrice, setIsSuggestingPrice] = useState(false);
+
+  const suggestPrice = async () => {
+    const produceName = form.getValues("name");
+    const unit = form.getValues("unit");
+    if (!produceName) return;
+
+    setIsSuggestingPrice(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("price-insights", {
+        body: { produceType: produceName, unit: unit, mode: "specific" },
+      });
+
+      if (error) throw error;
+      if (data && data.suggestedPriceMin) {
+        const avg = Math.round((data.suggestedPriceMin + data.suggestedPriceMax) / 2);
+        form.setValue("price_per_unit", avg);
+      }
+    } catch (err) {
+      console.error("Error suggesting price:", err);
+    } finally {
+      setIsSuggestingPrice(false);
+    }
   };
 
   const handleSubmit = async (values: ListingFormValues) => {
@@ -286,12 +312,29 @@ const ProduceListingDialog = ({
                 name="price_per_unit"
                 render={({ field }) => (
                   <FormItem>
+                  <div className="flex items-center justify-between">
                     <FormLabel>Price per Unit (Ksh)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" min="0" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-[10px] gap-1 text-primary hover:text-primary hover:bg-primary/10"
+                      onClick={suggestPrice}
+                      disabled={isSuggestingPrice || !form.getValues("name")}
+                    >
+                      {isSuggestingPrice ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3 h-3" />
+                      )}
+                      AI Suggest
+                    </Button>
+                  </div>
+                  <FormControl>
+                    <Input type="number" step="0.01" min="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
                 )}
               />
 

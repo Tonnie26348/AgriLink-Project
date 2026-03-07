@@ -46,12 +46,36 @@ const MPesaPaymentDialog = ({
 
     setStep("processing");
     
-    // Simulate STK Push Delay
-    setTimeout(() => {
-      setStep("confirming");
-      // Generate a mock transaction ID
-      setTransactionId("M" + Math.random().toString(36).substr(2, 9).toUpperCase());
-    }, 2000);
+    try {
+      const { data, error } = await supabase.functions.invoke("mpesa-stkpush", {
+        body: {
+          amount: amount,
+          phoneNumber: phoneNumber,
+          orderId: orderId,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.ResponseCode === "0") {
+        setStep("confirming");
+        setTransactionId(data.MerchantRequestID);
+        toast({
+          title: "STK Push Sent",
+          description: "Please check your phone for the M-Pesa prompt.",
+        });
+      } else {
+        throw new Error(data.ResponseDescription || "Failed to initiate M-Pesa payment");
+      }
+    } catch (error: any) {
+      console.error("M-Pesa error:", error);
+      toast({
+        title: "Payment initiation failed",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+      setStep("input");
+    }
   };
 
   const handleConfirmPayment = async () => {

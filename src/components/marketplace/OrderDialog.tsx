@@ -24,7 +24,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Package, MapPin, Minus, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import MPesaPaymentDialog from "./MPesaPaymentDialog";
 
 const orderSchema = z.object({
   quantity: z.coerce.number().min(0.1, "Quantity must be at least 0.1"),
@@ -44,7 +45,10 @@ interface OrderDialogProps {
 const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProps) => {
   const { user, userRole } = useAuth();
   const { createOrder } = useOrders();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
@@ -68,7 +72,7 @@ const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProp
     if (!listing) return;
 
     setIsSubmitting(true);
-    const success = await createOrder({
+    const orderId = await createOrder({
       farmer_id: listing.farmer_id,
       items: [
         {
@@ -83,9 +87,11 @@ const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProp
 
     setIsSubmitting(false);
 
-    if (success) {
+    if (orderId) {
+      setLastOrderId(orderId);
       form.reset();
       onOpenChange(false);
+      setPaymentOpen(true);
       onSuccess?.();
     }
   };
@@ -133,146 +139,158 @@ const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProp
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Place Order</DialogTitle>
-          <DialogDescription>
-            Order fresh produce from {listing.farmer_name}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Place Order</DialogTitle>
+            <DialogDescription>
+              Order fresh produce from {listing.farmer_name}
+            </DialogDescription>
+          </DialogHeader>
 
-        {/* Product Summary */}
-        <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border border-border/50">
-          {listing.image_url ? (
-            <img
-              src={listing.image_url}
-              alt={listing.name}
-              className="w-16 h-16 rounded-lg object-cover"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Package className="w-8 h-8 text-primary" />
+          {/* Product Summary */}
+          <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border border-border/50">
+            {listing.image_url ? (
+              <img
+                src={listing.image_url}
+                alt={listing.name}
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="w-8 h-8 text-primary" />
+              </div>
+            )}
+            <div className="flex-1">
+              <h4 className="font-semibold text-foreground">{listing.name}</h4>
+              <p className="text-sm text-muted-foreground">{listing.category}</p>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                <MapPin className="w-3 h-3" />
+                {listing.farmer_location}
+              </div>
             </div>
-          )}
-          <div className="flex-1">
-            <h4 className="font-semibold text-foreground">{listing.name}</h4>
-            <p className="text-sm text-muted-foreground">{listing.category}</p>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-              <MapPin className="w-3 h-3" />
-              {listing.farmer_location}
+            <div className="text-right">
+              <p className="font-bold text-primary">Ksh{listing.price_per_unit}</p>
+              <p className="text-xs text-muted-foreground">per {listing.unit}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="font-bold text-primary">Ksh{listing.price_per_unit}</p>
-            <p className="text-xs text-muted-foreground">per {listing.unit}</p>
-          </div>
-        </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Quantity Selector */}
-            <FormField
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Quantity ({listing.unit}) - {listing.quantity_available} available
-                  </FormLabel>
-                  <FormControl>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleQuantityChange(-1)}
-                        disabled={quantity <= 0.1}
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                      <Input
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Quantity Selector */}
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Quantity ({listing.unit}) - {listing.quantity_available} available
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleQuantityChange(-1)}
+                          disabled={quantity <= 0.1}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <Input
+                          {...field}
+                          type="number"
+                          step="0.1"
+                          min="0.1"
+                          max={listing.quantity_available}
+                          className="w-24 text-center"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleQuantityChange(1)}
+                          disabled={quantity >= listing.quantity_available}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Delivery Address */}
+              <FormField
+                control={form.control}
+                name="delivery_address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Delivery Address</FormLabel>
+                    <FormControl>
+                      <Textarea
                         {...field}
-                        type="number"
-                        step="0.1"
-                        min="0.1"
-                        max={listing.quantity_available}
-                        className="w-24 text-center"
+                        placeholder="Enter your full delivery address..."
+                        rows={3}
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleQuantityChange(1)}
-                        disabled={quantity >= listing.quantity_available}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Delivery Address */}
-            <FormField
-              control={form.control}
-              name="delivery_address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delivery Address</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Enter your full delivery address..."
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Notes */}
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Order Notes (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Any special requests or instructions..."
+                        rows={2}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Order Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Any special requests or instructions..."
-                      rows={2}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Order Total */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <span className="font-medium text-foreground">Order Total</span>
+                <span className="text-2xl font-bold text-primary">Ksh{totalPrice.toFixed(2)}</span>
+              </div>
 
-            {/* Order Total */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <span className="font-medium text-foreground">Order Total</span>
-              <span className="text-2xl font-bold text-primary">Ksh{totalPrice.toFixed(2)}</span>
-            </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Placing Order...
+                  </>
+                ) : (
+                  <>Place Order - Ksh{totalPrice.toFixed(2)}</>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Placing Order...
-                </>
-              ) : (
-                <>Place Order - Ksh{totalPrice.toFixed(2)}</>
-              )}
-            </Button>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+      {lastOrderId && (
+        <MPesaPaymentDialog
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+          orderId={lastOrderId}
+          amount={totalPrice}
+          onSuccess={() => navigate("/buyer/dashboard")}
+        />
+      )}
+    </>
   );
 };
 

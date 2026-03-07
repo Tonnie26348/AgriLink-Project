@@ -40,7 +40,9 @@ Return a JSON object exactly like this:
     { "name": "Crop Name", "trend": "Rising" | "Stable" | "Falling", "priceRange": "Ksh XX - YY" }
   ],
   "seasonalAdvice": "1 sentence advice for farmers this month",
-  "demandHeatmap": "Description of high demand regions"
+  "demandHeatmap": [
+    { "region": "Region Name", "level": number (1-100), "topCrops": ["Crop1", "Crop2"] }
+  ]
 }`;
     } else {
       // Specific Produce Mode (Default)
