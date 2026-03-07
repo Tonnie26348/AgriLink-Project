@@ -39,6 +39,7 @@ import {
   SlidersHorizontal,
   Star,
   ShieldCheck as ShieldIcon,
+  Store,
 } from "lucide-react";
 
 const EMOJI_MAP: Record<string, string> = {
@@ -73,6 +74,8 @@ const Marketplace = () => {
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const [chatReceiver, setChatReceiver] = useState<{ id: string; name: string } | null>(null);
+
+  const [viewType, setViewType] = useState<"produce" | "shops">("produce");
 
   const { listings, loading, categories, refetch } = useMarketplace({
     category: selectedCategory,
@@ -344,8 +347,6 @@ const Marketplace = () => {
                       onToggleFavorite={() => toggleFavorite(listing.id)}
                     />
                   ))}
-                </div>
-
                 </div>
               </div>
             )}

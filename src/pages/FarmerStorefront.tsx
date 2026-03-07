@@ -25,10 +25,19 @@ import {
 import ListingDetailSheet from "@/components/marketplace/ListingDetailSheet";
 import { toast } from "sonner";
 
+interface Profile {
+  id: string;
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  location: string | null;
+  role: string;
+}
+
 const FarmerStorefront = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [farmer, setFarmer] = useState<any>(null);
+  const [farmer, setFarmer] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<MarketplaceListing | null>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
