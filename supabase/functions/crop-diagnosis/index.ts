@@ -19,8 +19,9 @@ serve(async (req) => {
     );
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_CROP");
-    if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 10) {
-      throw new Error("GEMINI_API_KEY_CROP is missing or invalid in Supabase secrets");
+    if (!GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY_CROP is missing");
+      throw new Error("API configuration error: Crop Doctor key missing");
     }
 
     // 1. Download image
@@ -29,8 +30,8 @@ serve(async (req) => {
       .download(image_path);
 
     if (downloadError) {
-       console.error("Storage Error:", downloadError);
-       throw new Error(`Storage Download Error: ${downloadError.message}. Check if bucket 'crop-diagnoses' exists.`);
+       console.error("Storage Download Error:", downloadError.message);
+       throw new Error(`Failed to retrieve image: ${downloadError.message}`);
     }
 
     // 2. Prepare Base64 safely
@@ -56,20 +57,24 @@ serve(async (req) => {
         }],
         generationConfig: {
           response_mime_type: "application/json",
-          temperature: 0.2,
+          temperature: 0.1,
         }
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gemini API Error (${response.status}): ${errorText}`);
+      console.error(`Gemini API Error: ${response.status}`, errorText);
+      throw new Error(`AI Diagnosis Service error (${response.status})`);
     }
 
     const result = await response.json();
+    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+      console.error("Invalid response from Gemini:", JSON.stringify(result));
+      throw new Error("AI returned empty results for this image.");
+    }
+
     let diagnosisText = result.candidates[0].content.parts[0].text;
-    
-    // Clean up markdown if Gemini adds it
     diagnosisText = diagnosisText.replace(/```json\n?|\n?```/g, "").trim();
     
     const diagnosis = JSON.parse(diagnosisText);
@@ -78,9 +83,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+  } catch (error: any) {
+    console.error("Crop Diagnosis Error:", error.message);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: "Please check if your Gemini API key is valid and image is clear."
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

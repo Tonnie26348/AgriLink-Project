@@ -12,15 +12,9 @@ serve(async (req) => {
     const { prompt, history } = await req.json();
     
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_ASSISTANT");
-    if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 10) {
-      console.error("GEMINI_API_KEY_ASSISTANT is missing or too short");
-      return new Response(JSON.stringify({ 
-        error: "AI Assistant configuration missing. Please ensure GEMINI_API_KEY_ASSISTANT is set in Supabase secrets.",
-        isConfigError: true 
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (!GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY_ASSISTANT is missing");
+      throw new Error("API configuration error: Assistant key missing");
     }
 
     const systemPrompt = `You are the AgriLink Personal Shopping AI, a friendly and expert agricultural assistant for Kenyan buyers and farmers. 
@@ -42,14 +36,15 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Gemini API Error:", errorData);
-      throw new Error(`Gemini API returned ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+      const errorText = await response.text();
+      console.error(`Gemini API Error: ${response.status}`, errorText);
+      throw new Error(`AI Chat service unavailable (${response.status})`);
     }
 
     const data = await response.json();
-    if (!data.candidates || data.candidates.length === 0) {
-      throw new Error("Gemini AI did not return any response candidates.");
+    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      console.error("Invalid response from Gemini:", JSON.stringify(data));
+      throw new Error("AI could not generate a response.");
     }
     
     const text = data.candidates[0].content.parts[0].text;
@@ -58,10 +53,12 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-    console.error("AI Assistant Function Error:", errorMessage);
-    return new Response(JSON.stringify({ error: errorMessage }), {
+  } catch (error: any) {
+    console.error("AI Assistant Error:", error.message);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: "Please verify your GEMINI_API_KEY_ASSISTANT."
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

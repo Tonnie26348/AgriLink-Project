@@ -21,7 +21,8 @@ serve(async (req) => {
 
     const geminiKey = Deno.env.get("GEMINI_API_KEY_SALES");
     if (!geminiKey) {
-      throw new Error("GEMINI_API_KEY_SALES is not set");
+      console.error("GEMINI_API_KEY_SALES is missing");
+      throw new Error("API configuration error: Sales Forecast key missing");
     }
 
     const prompt = `You are an expert AgriLink Sales & Market Analyst specializing in Kenyan agriculture.
@@ -56,22 +57,37 @@ Return a JSON object exactly like this:
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             response_mime_type: "application/json",
+            temperature: 0.1
           },
         }),
       }
     );
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Gemini API Error: ${response.status}`, errorText);
+      throw new Error(`AI Sales service unavailable (${response.status})`);
+    }
+
     const result = await response.json();
+    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+      console.error("Invalid response from Gemini:", JSON.stringify(result));
+      throw new Error("AI returned empty results for forecast.");
+    }
+
     const content = result.candidates[0].content.parts[0].text;
     const parsed = JSON.parse(content);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-    console.error("Function Error:", errorMessage);
-    return new Response(JSON.stringify({ error: errorMessage }), {
+  } catch (error: any) {
+    const errorMessage = error.message || "An unexpected error occurred";
+    console.error("Sales Forecast Error:", errorMessage);
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      details: "Check your GEMINI_API_KEY_SALES and input data."
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

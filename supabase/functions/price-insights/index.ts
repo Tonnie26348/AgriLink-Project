@@ -19,14 +19,16 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_MARKET");
-if (!GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY_MARKET is missing");
-}
+
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_MARKET");
+    if (!GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY_MARKET is missing");
+      throw new Error("API configuration error: Market key missing");
+    }
+
     let prompt = "";
     
     if (mode === "general") {
-      // General Market Analysis Mode
       let farmerCount = 10000;
       let buyerCount = 2800;
 
@@ -35,9 +37,11 @@ if (!GEMINI_API_KEY) {
         if (!rpcError && topStats) {
           farmerCount = topStats.farmerCount || farmerCount;
           buyerCount = topStats.buyerCount || buyerCount;
+        } else if (rpcError) {
+          console.warn("RPC Error (get_system_stats):", rpcError.message);
         }
       } catch (err) {
-        console.warn("Failed to fetch system stats, using defaults:", err);
+        console.warn("Failed to fetch system stats:", err);
       }
       
       prompt = `You are an expert AgriLink Market & Agricultural Consultant specializing in Kenya.
@@ -66,12 +70,20 @@ Return a JSON object exactly like this:
   ]
 }`;
     } else {
-      // Specific Produce Mode (Default)
-      const { data: marketData } = await supabaseClient.rpc('get_market_averages', { 
-        p_name: produceType 
-      });
-
-      const stats = marketData?.[0] || { avg_price: currentPrice || 50, min_price: currentPrice || 40, max_price: currentPrice || 60, total_listings: 0 };
+      let stats = { avg_price: currentPrice || 50, min_price: currentPrice || 40, max_price: currentPrice || 60, total_listings: 0 };
+      
+      try {
+        const { data: marketData, error: rpcError } = await supabaseClient.rpc('get_market_averages', { 
+          p_name: produceType 
+        });
+        if (!rpcError && marketData?.[0]) {
+          stats = marketData[0];
+        } else if (rpcError) {
+          console.warn("RPC Error (get_market_averages):", rpcError.message);
+        }
+      } catch (err) {
+        console.warn("Database error fetching averages:", err);
+      }
 
       prompt = `You are an AgriLink Market Analyst.
 Analyze this for a farmer in ${location || 'Kenya'}:
@@ -95,24 +107,37 @@ Return a JSON object:
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { response_mime_type: "application/json" }
+        generationConfig: { 
+          response_mime_type: "application/json",
+          temperature: 0.1 
+        }
       }),
     });
 
-    const result = await response.json();
-    if (!result.candidates || result.candidates.length === 0) {
-      throw new Error("Gemini API returned no results");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Gemini API Error: ${response.status}`, errorText);
+      throw new Error(`Gemini AI service unavailable (${response.status})`);
     }
-    const text = result.candidates[0].content.parts[0].text;
-    const guidance = JSON.parse(text);
+
+    const result = await response.json();
+    if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
+      console.error("Invalid Gemini response format:", JSON.stringify(result));
+      throw new Error("AI returned an empty or invalid response");
+    }
+
+    const guidance = JSON.parse(result.candidates[0].content.parts[0].text);
 
     return new Response(JSON.stringify({ success: true, guidance }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Function Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: "Check Supabase logs for more info" 
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
