@@ -46,7 +46,7 @@ serve(async (req) => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error?.message || "Gemini API Error");
 
-    let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("AI failed to return JSON diagnosis");
     
