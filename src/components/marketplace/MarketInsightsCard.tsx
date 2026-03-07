@@ -50,49 +50,44 @@ const MarketInsightsCard = () => {
 
   if (loading && !data) {
     return (
-      <Card className="shadow-soft border-border/50 h-full">
-        <CardHeader>
-          <CardTitle>Market Insights</CardTitle>
-          <CardDescription>Real-time agricultural trends</CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-        </CardContent>
+      <Card className="shadow-soft border-border/50 min-h-[200px] flex flex-col items-center justify-center p-6 bg-muted/20">
+        <Loader2 className="w-6 h-6 animate-spin text-secondary mb-3" />
+        <p className="text-xs text-muted-foreground animate-pulse">Consulting AI Analyst...</p>
       </Card>
     );
   }
 
   return (
-    <Card className="shadow-soft border-border/50 h-full flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="shadow-soft border-border/50 flex flex-col overflow-hidden max-h-[500px]">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-secondary/5">
         <div>
-          <CardTitle className="text-xl flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-secondary" />
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-secondary" />
             Market Insights
           </CardTitle>
-          <CardDescription>Powered by AI Analyst</CardDescription>
+          <CardDescription className="text-[10px]">Powered by AI Analyst</CardDescription>
         </div>
         <Button 
           variant="ghost" 
           size="icon" 
-          className="h-8 w-8 text-muted-foreground" 
+          className="h-7 w-7 text-muted-foreground hover:text-secondary" 
           onClick={fetchInsights}
           disabled={loading}
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
         </Button>
       </CardHeader>
-      <CardContent className="pt-2 flex-1 flex flex-col gap-4">
-        {data && (
+      <CardContent className="pt-3 pb-3 flex-1 flex flex-col gap-3 overflow-y-auto no-scrollbar">
+        {data ? (
           <>
             <div className="p-3 bg-secondary/5 rounded-xl border border-secondary/10">
-              <p className="text-xs text-foreground leading-relaxed">
+              <p className="text-[11px] text-foreground leading-relaxed">
                 {data.marketOverview}
               </p>
             </div>
 
             <div className="space-y-2">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price Trends</h4>
+              <h4 className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground px-1">Price Trends</h4>
               <div className="grid gap-1.5">
                 {data.topPerformers.slice(0, 3).map((item) => (
                   <div key={item.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/50">
@@ -106,7 +101,7 @@ const MarketInsightsCard = () => {
                          item.trend === "Falling" ? <TrendingDown className="w-3 h-3" /> :
                          <Minus className="w-3 h-3" />}
                       </div>
-                      <span className="text-xs font-medium">{item.name}</span>
+                      <span className="text-[11px] font-medium">{item.name}</span>
                     </div>
                     <Badge variant="outline" className="font-mono text-[9px] px-1 h-4">{item.priceRange}</Badge>
                   </div>
@@ -115,8 +110,8 @@ const MarketInsightsCard = () => {
             </div>
 
             {data.recommendations && (
-              <div className="space-y-2 pt-2 border-t border-border/50">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
+              <div className="space-y-2 pt-2 border-t border-border/40">
+                <h4 className="text-[9px] font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5 px-1">
                   <TrendingUp className="w-2.5 h-2.5" />
                   Best Future Deals
                 </h4>
@@ -124,7 +119,7 @@ const MarketInsightsCard = () => {
                   {data.recommendations.slice(0, 2).map((rec) => (
                     <div key={rec.name} className="p-2 rounded-lg bg-secondary/5 border border-secondary/10 group hover:bg-secondary/10 transition-colors">
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs font-bold text-foreground">{rec.name}</span>
+                        <span className="text-[11px] font-bold text-foreground">{rec.name}</span>
                         <Badge variant="outline" className="text-[8px] h-3.5 px-1 border-secondary/30 text-secondary bg-secondary/5">
                           In {rec.timeToHarvest}
                         </Badge>
@@ -136,13 +131,19 @@ const MarketInsightsCard = () => {
               </div>
             )}
 
-            <div className="mt-auto pt-4 border-t border-border/50">
-              <p className="text-xs italic text-muted-foreground flex items-center gap-2">
-                <Minus className="w-3 h-3 text-secondary" />
+            <div className="mt-auto pt-2 border-t border-border/40">
+              <p className="text-[10px] italic text-muted-foreground flex items-center gap-2 px-1">
+                <Minus className="w-2.5 h-2.5 text-secondary shrink-0" />
                 {data.seasonalAdvice}
               </p>
             </div>
           </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+            <Sparkles className="w-8 h-8 text-muted-foreground/20 mb-2" />
+            <p className="text-xs text-muted-foreground">Market data currently unavailable.</p>
+            <Button variant="link" size="sm" onClick={fetchInsights} className="text-secondary mt-1">Retry</Button>
+          </div>
         )}
       </CardContent>
     </Card>

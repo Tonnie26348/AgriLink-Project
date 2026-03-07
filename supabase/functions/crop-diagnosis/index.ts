@@ -18,9 +18,9 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_CROP");
     if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 10) {
-      throw new Error("GEMINI_API_KEY is missing or invalid in Supabase secrets");
+      throw new Error("GEMINI_API_KEY_CROP is missing or invalid in Supabase secrets");
     }
 
     // 1. Download image

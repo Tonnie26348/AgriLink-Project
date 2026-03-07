@@ -19,9 +19,9 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
+    const geminiKey = Deno.env.get("GEMINI_API_KEY_SALES");
     if (!geminiKey) {
-      throw new Error("GEMINI_API_KEY is not set");
+      throw new Error("GEMINI_API_KEY_SALES is not set");
     }
 
     const prompt = `You are an expert AgriLink Sales & Market Analyst specializing in Kenyan agriculture.

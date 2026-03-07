@@ -19,10 +19,10 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
-
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not set");
-
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_MARKET");
+if (!GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY_MARKET is missing");
+}
     let prompt = "";
     
     if (mode === "general") {

@@ -62,12 +62,23 @@ const AIChatDialog = ({ open, onOpenChange, initialMessage }: AIChatDialogProps)
         body: { prompt: userMessage, history },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Try to parse the error from the response
+        let errorMessage = "I'm sorry, I encountered an error. Please try again.";
+        try {
+          const body = await error.context.json();
+          if (body && body.error) errorMessage = body.error;
+        } catch (e) {
+          console.error("Could not parse error body", e);
+        }
+        throw new Error(errorMessage);
+      }
 
       setMessages(prev => [...prev, { role: "model", text: data.text }]);
     } catch (err) {
       console.error("AI Assistant Error:", err);
-      setMessages(prev => [...prev, { role: "model", text: "I'm sorry, I encountered an error. Please try again." }]);
+      const msg = err instanceof Error ? err.message : "I'm sorry, I encountered an error. Please try again.";
+      setMessages(prev => [...prev, { role: "model", text: msg }]);
     } finally {
       setLoading(false);
     }

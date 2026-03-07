@@ -11,8 +11,17 @@ serve(async (req) => {
   try {
     const { prompt, history } = await req.json();
     
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is missing");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_ASSISTANT");
+    if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 10) {
+      console.error("GEMINI_API_KEY_ASSISTANT is missing or too short");
+      return new Response(JSON.stringify({ 
+        error: "AI Assistant configuration missing. Please ensure GEMINI_API_KEY_ASSISTANT is set in Supabase secrets.",
+        isConfigError: true 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const systemPrompt = `You are the AgriLink Personal Shopping AI, a friendly and expert agricultural assistant for Kenyan buyers and farmers. 
     You help users find the best produce, understand market trends, and give nutritional advice.
@@ -32,7 +41,17 @@ serve(async (req) => {
       body: JSON.stringify({ contents }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Gemini API Error:", errorData);
+      throw new Error(`Gemini API returned ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
     const data = await response.json();
+    if (!data.candidates || data.candidates.length === 0) {
+      throw new Error("Gemini AI did not return any response candidates.");
+    }
+    
     const text = data.candidates[0].content.parts[0].text;
 
     return new Response(JSON.stringify({ text }), {
@@ -41,6 +60,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    console.error("AI Assistant Function Error:", errorMessage);
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
