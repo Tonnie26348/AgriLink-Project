@@ -58,12 +58,24 @@ Return the result in JSON format:
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Gemini API Error:", errorText);
+      throw new Error(`Gemini API failed with status ${response.status}: ${errorText}`);
+    }
+
     const result = await response.json();
+    console.log("Gemini Response:", JSON.stringify(result));
+
     if (!result.candidates || result.candidates.length === 0) {
-      throw new Error("Gemini API returned no results");
+      throw new Error("Gemini API returned no candidates");
     }
     
-    const diagnosis = JSON.parse(result.candidates[0].content.parts[0].text);
+    let diagnosisText = result.candidates[0].content.parts[0].text;
+    // Strip markdown if Gemini includes it
+    diagnosisText = diagnosisText.replace(/```json\n?|\n?```/g, "").trim();
+    
+    const diagnosis = JSON.parse(diagnosisText);
 
     return new Response(JSON.stringify({ success: true, diagnosis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
