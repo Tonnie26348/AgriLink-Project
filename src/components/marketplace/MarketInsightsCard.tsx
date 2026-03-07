@@ -82,54 +82,54 @@ const MarketInsightsCard = () => {
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </Button>
       </CardHeader>
-      <CardContent className="pt-4 flex-1 flex flex-col gap-6">
+      <CardContent className="pt-2 flex-1 flex flex-col gap-4">
         {data && (
           <>
-            <div className="p-4 bg-secondary/5 rounded-xl border border-secondary/10">
-              <p className="text-sm text-foreground leading-relaxed">
+            <div className="p-3 bg-secondary/5 rounded-xl border border-secondary/10">
+              <p className="text-xs text-foreground leading-relaxed">
                 {data.marketOverview}
               </p>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Price Trends</h4>
-              <div className="grid gap-2">
-                {data.topPerformers.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-1.5 rounded-full ${
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price Trends</h4>
+              <div className="grid gap-1.5">
+                {data.topPerformers.slice(0, 3).map((item) => (
+                  <div key={item.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1 rounded-full ${
                         item.trend === "Rising" ? "bg-green-100 text-green-600" :
                         item.trend === "Falling" ? "bg-red-100 text-red-600" :
                         "bg-blue-100 text-blue-600"
                       }`}>
-                        {item.trend === "Rising" ? <TrendingUp className="w-3.5 h-3.5" /> :
-                         item.trend === "Falling" ? <TrendingDown className="w-3.5 h-3.5" /> :
-                         <Minus className="w-3.5 h-3.5" />}
+                        {item.trend === "Rising" ? <TrendingUp className="w-3 h-3" /> :
+                         item.trend === "Falling" ? <TrendingDown className="w-3 h-3" /> :
+                         <Minus className="w-3 h-3" />}
                       </div>
-                      <span className="text-sm font-medium">{item.name}</span>
+                      <span className="text-xs font-medium">{item.name}</span>
                     </div>
-                    <Badge variant="outline" className="font-mono text-[10px]">{item.priceRange}</Badge>
+                    <Badge variant="outline" className="font-mono text-[9px] px-1 h-4">{item.priceRange}</Badge>
                   </div>
                 ))}
               </div>
             </div>
 
             {data.recommendations && (
-              <div className="space-y-3 pt-4 border-t border-border/50">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-2">
-                  <TrendingUp className="w-3 h-3" />
+              <div className="space-y-2 pt-2 border-t border-border/50">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
+                  <TrendingUp className="w-2.5 h-2.5" />
                   Best Future Deals
                 </h4>
-                <div className="grid gap-2">
-                  {data.recommendations.map((rec) => (
-                    <div key={rec.name} className="p-3 rounded-lg bg-secondary/5 border border-secondary/10 group hover:bg-secondary/10 transition-colors">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-bold text-foreground">{rec.name}</span>
-                        <Badge variant="outline" className="text-[9px] border-secondary/30 text-secondary bg-secondary/5">
+                <div className="grid gap-1.5">
+                  {data.recommendations.slice(0, 2).map((rec) => (
+                    <div key={rec.name} className="p-2 rounded-lg bg-secondary/5 border border-secondary/10 group hover:bg-secondary/10 transition-colors">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs font-bold text-foreground">{rec.name}</span>
+                        <Badge variant="outline" className="text-[8px] h-3.5 px-1 border-secondary/30 text-secondary bg-secondary/5">
                           In {rec.timeToHarvest}
                         </Badge>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-tight">{rec.reason}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight line-clamp-1">{rec.reason}</p>
                     </div>
                   ))}
                 </div>
