@@ -68,12 +68,32 @@ const AIDiagnosisDialog = ({
       });
 
       if (analysisError) {
+        let detailedMsg = analysisError.message;
+        
+        // Define a local interface for the Supabase Function error structure
+        interface FunctionsHttpError extends Error {
+          context?: { json: () => Promise<{ error?: string }> };
+          status?: number;
+        }
+
+        // Attempt to extract the JSON error body from the non-2xx response
+        const httpError = analysisError as FunctionsHttpError;
+        if (httpError.context && typeof httpError.context.json === 'function') {
+          try {
+            const errorBody = await httpError.context.json();
+            if (errorBody && errorBody.error) detailedMsg = errorBody.error;
+          } catch (e) {
+            console.error("Failed to parse context JSON:", e);
+          }
+        }
+
         console.error("Invoke Error Details:", {
-          message: analysisError.message,
-          error: analysisError,
-          status: (analysisError as { status?: number }).status
+          message: detailedMsg,
+          original: analysisError,
+          status: httpError.status
         });
-        throw new Error(`AI Connection Failed: ${analysisError.message}`);
+        
+        throw new Error(`AI Connection Failed: ${detailedMsg}`);
       }
 
       console.log("Invoke Result:", analysisData);
