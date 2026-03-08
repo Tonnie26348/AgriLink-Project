@@ -22,6 +22,15 @@ Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
+// Mock environment variables for Vitest to satisfy Supabase createClient validation
+vi.stubGlobal('import.meta', {
+  env: {
+    VITE_SUPABASE_URL: 'https://test-project.supabase.co',
+    VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+    DEV: true,
+  }
+});
+
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
