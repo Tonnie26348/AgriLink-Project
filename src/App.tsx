@@ -51,7 +51,47 @@ const App = () => (
                 path="/farmer/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["farmer"]}>
-                    <FarmerDashboard />
+                    <FarmerDashboard activeTab="overview" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/dashboard/inventory"
+                element={
+                  <ProtectedRoute allowedRoles={["farmer"]}>
+                    <FarmerDashboard activeTab="inventory" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/dashboard/orders"
+                element={
+                  <ProtectedRoute allowedRoles={["farmer"]}>
+                    <FarmerDashboard activeTab="orders" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/dashboard/harvests"
+                element={
+                  <ProtectedRoute allowedRoles={["farmer"]}>
+                    <FarmerDashboard activeTab="calendar" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/dashboard/ai-insights"
+                element={
+                  <ProtectedRoute allowedRoles={["farmer"]}>
+                    <FarmerDashboard activeTab="ai-insights" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/dashboard/messages"
+                element={
+                  <ProtectedRoute allowedRoles={["farmer"]}>
+                    <FarmerDashboard activeTab="messages" />
                   </ProtectedRoute>
                 }
               />
@@ -59,7 +99,39 @@ const App = () => (
                 path="/buyer/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["buyer"]}>
-                    <BuyerDashboard />
+                    <BuyerDashboard activeTab="overview" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/buyer/dashboard/market"
+                element={
+                  <ProtectedRoute allowedRoles={["buyer"]}>
+                    <BuyerDashboard activeTab="market" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/buyer/dashboard/favorites"
+                element={
+                  <ProtectedRoute allowedRoles={["buyer"]}>
+                    <BuyerDashboard activeTab="favorites" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/buyer/dashboard/orders"
+                element={
+                  <ProtectedRoute allowedRoles={["buyer"]}>
+                    <BuyerDashboard activeTab="orders" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/buyer/dashboard/messages"
+                element={
+                  <ProtectedRoute allowedRoles={["buyer"]}>
+                    <BuyerDashboard activeTab="messages" />
                   </ProtectedRoute>
                 }
               />

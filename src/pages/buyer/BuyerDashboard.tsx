@@ -34,11 +34,16 @@ import MarketInsightsCard from "@/components/marketplace/MarketInsightsCard";
 import AIAssistantCard from "@/components/marketplace/AIAssistantCard";
 import OnboardingTour from "@/components/OnboardingTour";
 
-const BuyerDashboard = () => {
-  const { signOut } = useAuth();
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
+interface BuyerDashboardProps {
+  activeTab?: "overview" | "market" | "orders" | "messages" | "favorites";
+}
+
+const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"overview" | "market" | "orders" | "messages" | "favorites">("overview");
+  const activeTab = propActiveTab;
 
   const { orders, loading: ordersLoading } = useOrders();
   const { listings, loading: listingsLoading } = useMarketplace();
@@ -87,95 +92,20 @@ const BuyerDashboard = () => {
   };
 
   const tabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
-    { id: "market", label: "Market", icon: Search },
-    { id: "favorites", label: "Saved", icon: Heart },
-    { id: "orders", label: "My Orders", icon: ShoppingBag },
-    { id: "messages", label: "Messages", icon: MessageSquare },
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/buyer/dashboard" },
+    { id: "market", label: "Market", icon: Search, path: "/buyer/dashboard/market" },
+    { id: "favorites", label: "Saved", icon: Heart, path: "/buyer/dashboard/favorites" },
+    { id: "orders", label: "My Orders", icon: ShoppingBag, path: "/buyer/dashboard/orders" },
+    { id: "messages", label: "Messages", icon: MessageSquare, path: "/buyer/dashboard/messages" },
   ] as const;
 
    return (
-     <div className="min-h-screen bg-muted/30 flex flex-col font-sans">
+    <DashboardLayout navItems={[...tabs]} role="buyer">
        <OnboardingTour />
-       {/* Dedicated Buyer Header */}
-       <header className="bg-background/80 backdrop-blur-xl border-b border-border/40 h-16 md:h-20 sticky top-0 z-50 transition-all duration-300">
-         <div className="container mx-auto px-4 h-full flex items-center justify-between">
-           <Link to="/" className="flex items-center gap-3 group">
-             <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300">
-               <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 text-secondary-foreground" />
-             </div>
-             <div className="flex flex-col">
-               <span className="text-lg md:text-xl font-display font-bold text-foreground leading-none">
-                 Agri<span className="text-secondary">Link</span> <span className="text-muted-foreground font-medium">Buyer</span>
-               </span>
-             </div>
-           </Link>
-
-           <div className="flex items-center gap-2 md:gap-4">
-             {/* Desktop Actions */}
-             <div className="hidden md:flex items-center gap-2 border-l border-border/50 pl-4">
-               <Link to="/profile">
-                 <Button 
-                   variant="ghost" 
-                   size="sm" 
-                   className="text-muted-foreground hover:text-secondary rounded-full"
-                 >
-                   <UserCircle className="w-5 h-5 mr-2" />
-                   Profile
-                 </Button>
-               </Link>
-               <Button 
-                 variant="ghost" 
-                 size="icon"
-                 onClick={handleLogout} 
-                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                 title="Log Out"
-               >
-                 <LogOut className="w-5 h-5" />
-               </Button>
-             </div>
-
-             {/* Mobile Menu */}
-             <div className="md:hidden flex items-center">
-               <Button variant="ghost" size="icon" className="rounded-full" asChild>
-                 <Link to="/profile">
-                   <UserCircle className="w-5 h-5 text-muted-foreground" />
-                 </Link>
-               </Button>
-               <Button variant="ghost" size="icon" className="rounded-full text-destructive hover:bg-destructive/10" onClick={handleLogout}>
-                 <LogOut className="w-5 h-5" />
-               </Button>
-             </div>
-           </div>
-         </div>
-       </header>
-
-       {/* Sub-navigation Tabs */}
-       <div className="bg-background/95 backdrop-blur-md border-b border-border/50 sticky top-16 md:top-20 z-40 shadow-sm transition-all">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-3 mask-fade-right">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap border ${
-                  activeTab === tab.id
-                    ? "bg-secondary text-secondary-foreground border-secondary shadow-md transform scale-105"
-                    : "bg-background text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? "animate-bounce" : ""}`} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-       <main className="container mx-auto px-4 py-8 flex-1">
-         {/* Tab Content */}
-         <div className="space-y-8 animate-fade-in">
-          {activeTab === "overview" && (
+       
+       {/* Tab Content */}
+       <div className="space-y-8 animate-fade-in">
+        {activeTab === "overview" && (
             <>
               {/* Welcome Section */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -426,7 +356,6 @@ const BuyerDashboard = () => {
             </Card>
           )}
          </div>
-       </main>
 
        {/* Chat Dialog */}
       {selectedChatUser && (
@@ -437,17 +366,8 @@ const BuyerDashboard = () => {
           receiverName={selectedChatUser.name}
         />
       )}
+    </DashboardLayout>
+  );
+};
 
-       {/* Simple Dashboard Footer */}
-       <footer className="py-6 border-t border-border/50 mt-auto bg-background">
-         <div className="container mx-auto px-4 text-center">
-           <p className="text-xs text-muted-foreground">
-             © {new Date().getFullYear()} AgriLink Buyer Portal. All purchases are protected by AgriLink FairTrade.
-           </p>
-         </div>
-       </footer>
-
-     </div>
-   );
- }; 
- export default BuyerDashboard;
+export default BuyerDashboard;

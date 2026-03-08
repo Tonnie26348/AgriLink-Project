@@ -61,11 +61,16 @@ import {
   Calendar as CalendarIcon
 } from "lucide-react";
 
-const FarmerDashboard = () => {
-  const { signOut } = useAuth();
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
+interface FarmerDashboardProps {
+  activeTab?: "overview" | "inventory" | "orders" | "messages" | "ai-insights" | "calendar";
+}
+
+const FarmerDashboard = ({ activeTab: propActiveTab = "overview" }: FarmerDashboardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "orders" | "messages" | "ai-insights" | "calendar">("overview");
+  const activeTab = propActiveTab;
 
   const { 
     listings, 
@@ -180,113 +185,21 @@ const FarmerDashboard = () => {
   };
 
   const tabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
-    { id: "inventory", label: "Inventory", icon: Package },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "calendar", label: "Harvests", icon: CalendarIcon },
-    { id: "ai-insights", label: "AI Insights", icon: Bot },
-    { id: "messages", label: "Messages", icon: MessageSquare },
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/farmer/dashboard" },
+    { id: "inventory", label: "Inventory", icon: Package, path: "/farmer/dashboard/inventory" },
+    { id: "orders", label: "Orders", icon: ShoppingCart, path: "/farmer/dashboard/orders" },
+    { id: "calendar", label: "Harvests", icon: CalendarIcon, path: "/farmer/dashboard/harvests" },
+    { id: "ai-insights", label: "AI Insights", icon: Bot, path: "/farmer/dashboard/ai-insights" },
+    { id: "messages", label: "Messages", icon: MessageSquare, path: "/farmer/dashboard/messages" },
   ] as const;
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col font-sans">
+    <DashboardLayout navItems={[...tabs]} role="farmer">
       <OnboardingTour />
-      {/* Dedicated Dashboard Header */}
-      <header className="bg-background/80 backdrop-blur-xl border-b border-border/40 h-16 md:h-20 sticky top-0 z-50 transition-all duration-300">
-        <div className="container mx-auto px-4 h-full flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300">
-              <Leaf className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground fill-current" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg md:text-xl font-display font-bold text-foreground leading-none">
-                Agri<span className="text-primary">Link</span> <span className="text-muted-foreground font-medium">Farmer</span>
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-semibold text-primary">Live Market</span>
-            </div>
-
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-2 border-l border-border/50 pl-4">
-              <Link to="/profile">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-muted-foreground hover:text-primary rounded-full"
-                >
-                  <UserCircle className="w-5 h-5 mr-2" />
-                  Profile
-                </Button>
-              </Link>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleLogout} 
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                title="Log Out"
-              >
-                <LogOut className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Mobile Menu */}
-            <div className="md:hidden flex items-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <MoreVertical className="w-5 h-5 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 p-2">
-                  <div className="px-2 py-1.5 mb-2 bg-muted/50 rounded-lg">
-                    <p className="text-xs font-medium text-muted-foreground">Signed in as Farmer</p>
-                  </div>
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer">
-                      <UserCircle className="w-4 h-4 mr-2" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-                    <LogOut className="w-4 h-4 mr-2" /> Log Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Sub-navigation Tabs - Sticky & Scrollable */}
-      <div className="bg-background/95 backdrop-blur-md border-b border-border/50 sticky top-16 md:top-20 z-40 shadow-sm transition-all">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-3 mask-fade-right">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap border ${
-                  activeTab === tab.id
-                    ? "bg-primary text-primary-foreground border-primary shadow-md transform scale-105"
-                    : "bg-background text-muted-foreground border-transparent hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? "animate-bounce" : ""}`} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <main className="container mx-auto px-4 py-8 flex-1">
-        {/* Tab Content */}
-        <div className="space-y-8 animate-fade-in">
-          {activeTab === "overview" && (
+      
+      {/* Tab Content */}
+      <div className="space-y-8 animate-fade-in">
+        {activeTab === "overview" && (
             <>
               {/* Welcome Section */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -610,97 +523,86 @@ const FarmerDashboard = () => {
             </Card>
           )}
         </div>
-      </main>
 
-      {/* Add/Edit Dialog */}
-      <ProduceListingDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        listing={editingListing}
-        onSubmit={handleSubmit}
-        onUploadImage={uploadImage}
-        onSuccess={refetch}
-      />
-
-      {/* Chat Dialog */}
-      {selectedChatUser && (
-        <ChatDialog
-          open={chatDialogOpen}
-          onOpenChange={setChatDialogOpen}
-          receiverId={selectedChatUser.id}
-          receiverName={selectedChatUser.name}
+        {/* Add/Edit Dialog */}
+        <ProduceListingDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          listing={editingListing}
+          onSubmit={handleSubmit}
+          onUploadImage={uploadImage}
+          onSuccess={refetch}
         />
-      )}
 
-      {/* AI Plant Doctor Dialog */}
-      <AIDiagnosisDialog
-        open={isDiagnosisOpen}
-        onOpenChange={setIsDiagnosisOpen}
-      />
+        {/* Chat Dialog */}
+        {selectedChatUser && (
+          <ChatDialog
+            open={chatDialogOpen}
+            onOpenChange={setChatDialogOpen}
+            receiverId={selectedChatUser.id}
+            receiverName={selectedChatUser.name}
+          />
+        )}
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Listing</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this listing? This action cannot be undone and will remove it from the marketplace.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Listing
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* AI Plant Doctor Dialog */}
+        <AIDiagnosisDialog
+          open={isDiagnosisOpen}
+          onOpenChange={setIsDiagnosisOpen}
+        />
 
-      {/* Simple Dashboard Footer */}
-      <footer className="py-6 border-t border-border/50 mt-auto bg-background">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} AgriLink Farmer Portal. All produce data is secured.
-          </p>
+        {/* Delete Confirmation */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Listing</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this listing? This action cannot be undone and will remove it from the marketplace.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete Listing
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Floating AI Assistant FAB */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="lg" className="rounded-full h-14 w-14 shadow-glow p-0 overflow-hidden group border-2 border-white/20">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 group-hover:scale-110 transition-transform" />
+                <Bot className="relative z-10 w-7 h-7 text-white" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 mb-2 p-2 shadow-elevated border-border/40 backdrop-blur-xl bg-background/95">
+              <div className="px-2 py-2 mb-2 border-b border-border/50">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary">AI Assistant</p>
+              </div>
+              <DropdownMenuItem onClick={() => setIsDiagnosisOpen(true)} className="gap-3 py-3 cursor-pointer rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Camera className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold">Plant Doctor</span>
+                  <span className="text-[10px] text-muted-foreground">Scan for diseases</span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/farmer/dashboard/ai-insights")} className="gap-3 py-3 cursor-pointer rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-secondary" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold">Market Guidance</span>
+                  <span className="text-[10px] text-muted-foreground">AI price predictions</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </footer>
-
-      {/* Floating AI Assistant FAB */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="lg" className="rounded-full h-14 w-14 shadow-glow p-0 overflow-hidden group border-2 border-white/20">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80 group-hover:scale-110 transition-transform" />
-              <Bot className="relative z-10 w-7 h-7 text-white" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 mb-2 p-2 shadow-elevated border-border/40 backdrop-blur-xl bg-background/95">
-            <div className="px-2 py-2 mb-2 border-b border-border/50">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-primary">AI Assistant</p>
-            </div>
-            <DropdownMenuItem onClick={() => setIsDiagnosisOpen(true)} className="gap-3 py-3 cursor-pointer rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Camera className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold">Plant Doctor</span>
-                <span className="text-[10px] text-muted-foreground">Scan for diseases</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setActiveTab("ai-insights")} className="gap-3 py-3 cursor-pointer rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-secondary" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold">Market Guidance</span>
-                <span className="text-[10px] text-muted-foreground">AI price predictions</span>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-    </div>
+    </DashboardLayout>
   );
 };
 
