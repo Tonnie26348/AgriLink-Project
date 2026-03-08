@@ -11,29 +11,33 @@ serve(async (req) => {
 
   try {
     const { image_path } = await req.json();
-    
-    // 1. Initialize Supabase
+    if (!image_path) throw new Error("No image path provided");
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // 2. Get API Key
     const apiKey = Deno.env.get("GEMINI_API_KEY_CROP") || Deno.env.get("GEMINI_API_KEY");
-    if (!apiKey) return new Response(JSON.stringify({ success: false, error: "GEMINI_API_KEY is missing in Supabase Settings." }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing in Supabase secrets.");
 
-    // 3. Download Image
     const { data: imageBlob, error: downloadError } = await supabase.storage
       .from('crop-diagnoses')
       .download(image_path);
 
-    if (downloadError) return new Response(JSON.stringify({ success: false, error: `Storage Error: ${downloadError.message}` }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (downloadError) throw new Error(`Storage Error: ${downloadError.message}`);
 
-    // 4. Convert to Base64
     const buffer = await imageBlob.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+    const uint8Array = new Uint8Array(buffer);
+    
+    // SAFE Base64 encoding for large files
+    let binary = "";
+    const len = uint8Array.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    const base64 = btoa(binary);
 
-    // 5. Call Gemini
     const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,19 +52,22 @@ serve(async (req) => {
     });
 
     const result = await resp.json();
-    if (!resp.ok) return new Response(JSON.stringify({ success: false, error: `Gemini Error: ${result.error?.message || "Unknown"}` }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!resp.ok) throw new Error(`Gemini Error: ${result.error?.message || "Unknown API Error"}`);
 
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return new Response(JSON.stringify({ success: false, error: "AI failed to return a valid diagnosis format." }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!jsonMatch) throw new Error("AI failed to return a valid JSON diagnosis.");
 
     return new Response(JSON.stringify({ success: true, diagnosis: JSON.parse(jsonMatch[0]) }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200
     });
 
   } catch (err) {
+    console.error("Fatal Function Error:", err.message);
     return new Response(JSON.stringify({ success: false, error: err.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200 // Still return 200 so the frontend can read the error message
     });
   }
 });

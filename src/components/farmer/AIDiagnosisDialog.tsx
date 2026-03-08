@@ -67,12 +67,13 @@ const AIDiagnosisDialog = ({
       });
 
       if (analysisError) {
-        console.error("Function Invocation Failed:", analysisError);
-        throw new Error("Could not connect to AI Service. Please ensure the function is deployed.");
+        console.error("Invoke Failed:", analysisError);
+        // Display the actual error message from Supabase (e.g. 404 or 500)
+        throw new Error(`Cloud Error: ${analysisError.message || "Unknown Status"}`);
       }
 
       if (!analysisData || analysisData.success === false) {
-        throw new Error(analysisData?.error || "AI Service failed to analyze the image.");
+        throw new Error(analysisData?.error || "AI Service failed to provide a diagnosis.");
       }
 
       const diagnosisResult = analysisData.diagnosis;
