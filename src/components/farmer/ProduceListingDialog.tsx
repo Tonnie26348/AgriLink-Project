@@ -52,9 +52,10 @@ const CATEGORIES = [
   "Fruits",
   "Grains",
   "Pulses",
-  "Dairy & Poultry",
+  "Dairy",
   "Tubers",
-  "Spices & Herbs",
+  "Spices",
+  "Herbs",
   "Other",
 ];
 

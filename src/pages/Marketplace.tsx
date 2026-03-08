@@ -49,9 +49,9 @@ const EMOJI_MAP: Record<string, string> = {
   Grains: "🌾",
   Pulses: "🫘",
   Dairy: "🥛",
+  Tubers: "🥔",
   Spices: "🌶️",
   Herbs: "🌿",
-  Tubers: "🥔",
   Other: "📦",
 };
 
