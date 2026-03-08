@@ -72,7 +72,14 @@ const AIDiagnosisDialog = ({
         setTimeout(() => reject(new Error("The AI service is taking too long to respond. Please try again later.")), 30000)
       );
 
-      const { data: analysisData, error: analysisError } = (await Promise.race([invokePromise, timeoutPromise])) as { data: any, error: any };
+      // Define local interfaces for type safety
+      interface AIResponse {
+        success: boolean;
+        diagnosis?: DiagnosisResult;
+        error?: string;
+      }
+
+      const { data: analysisData, error: analysisError } = (await Promise.race([invokePromise, timeoutPromise])) as { data: AIResponse | null, error: Error | null };
 
       if (analysisError) {
         let detailedMsg = analysisError.message;
