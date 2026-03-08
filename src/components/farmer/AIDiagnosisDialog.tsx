@@ -67,20 +67,19 @@ const AIDiagnosisDialog = ({
       });
 
       if (analysisError) {
-        // Try to get a more descriptive error from the response body if it exists
-        let detailedError = analysisError.message;
-        if (analysisError instanceof Error && 'context' in analysisError) {
-          try {
-            const context = (analysisError as { context?: { json: () => Promise<{ error?: string }> } }).context;
-            if (context && typeof context.json === 'function') {
-              const body = await context.json();
-              if (body && body.error) detailedError = body.error;
-            }
-          } catch (e) {
-            console.error("Could not parse error body", e);
+        let errorMessage = "AI Service Error";
+        
+        // Try to extract the JSON error message from Supabase's non-2xx response
+        try {
+          if (analysisError.context) {
+            const body = await analysisError.context.json();
+            if (body && body.error) errorMessage = body.error;
           }
+        } catch (e) {
+          errorMessage = analysisError.message;
         }
-        throw new Error(detailedError);
+        
+        throw new Error(errorMessage);
       }
 
       const diagnosisResult = analysisData.diagnosis;
