@@ -73,7 +73,7 @@ const AIDiagnosisDialog = ({
         // Detailed extraction for Supabase FunctionsHttpError
         if (analysisError instanceof Error && 'context' in analysisError) {
           try {
-            const context = (analysisError as any).context;
+            const context = (analysisError as { context?: { json: () => Promise<{ error?: string }> } }).context;
             if (context && typeof context.json === 'function') {
               const body = await context.json();
               console.log("Error body from function:", body);
