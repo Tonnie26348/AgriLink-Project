@@ -32,33 +32,52 @@ serve(async (req) => {
     for (let i = 0; i < uint8Array.byteLength; i++) binary += String.fromCharCode(uint8Array[i]);
     const base64 = btoa(binary);
 
-    // Use stable v1 API and latest flash model
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: "Analyze this agricultural plant image. Identify the crop and any diseases. Return JSON ONLY: { \"crop_type\": \"...\", \"diagnosis\": \"...\", \"confidence\": 0.9, \"treatment_advice\": \"...\" }" },
-            { inline_data: { mime_type: imageBlob.type || "image/jpeg", data: base64 } }
-          ]
-        }]
-      })
-    });
+    // List of model/version combinations to try in order of preference
+    const attempts = [
+      { ver: "v1beta", model: "gemini-1.5-flash" },
+      { ver: "v1", model: "gemini-1.5-flash" },
+      { ver: "v1beta", model: "gemini-pro-vision" },
+      { ver: "v1beta", model: "gemini-1.5-pro" }
+    ];
 
-    const result = await resp.json();
-    if (!resp.ok) {
-      console.error("Gemini API Error:", result);
-      throw new Error(`Gemini: ${result.error?.message || "Unknown Error"}`);
+    let lastError = "";
+    for (const attempt of attempts) {
+      console.log(`Attempting analysis with ${attempt.model} (${attempt.ver})...`);
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/${attempt.ver}/models/${attempt.model}:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: "Analyze this agricultural plant image. Identify the crop and any diseases. Return JSON ONLY: { \"crop_type\": \"...\", \"diagnosis\": \"...\", \"confidence\": 0.9, \"treatment_advice\": \"...\" }" },
+                { inline_data: { mime_type: imageBlob.type || "image/jpeg", data: base64 } }
+              ]
+            }]
+          })
+        });
+
+        const result = await resp.json();
+        
+        if (resp.ok) {
+          const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            console.log(`Success with ${attempt.model}!`);
+            return new Response(JSON.stringify({ success: true, diagnosis: JSON.parse(jsonMatch[0]) }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" }
+            });
+          }
+        } else {
+          lastError = result.error?.message || "Unknown API Error";
+          console.warn(`${attempt.model} failed: ${lastError}`);
+        }
+      } catch (e) {
+        console.warn(`Fetch error for ${attempt.model}:`, e.message);
+      }
     }
 
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("Invalid AI format returned.");
-
-    return new Response(JSON.stringify({ success: true, diagnosis: JSON.parse(jsonMatch[0]) }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
+    throw new Error(`All Gemini models failed. Last error: ${lastError}`);
 
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
