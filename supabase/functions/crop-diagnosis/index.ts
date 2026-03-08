@@ -7,13 +7,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const { image_path } = await req.json();
     
-    // Use environment variables for internal Supabase client
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -22,22 +20,20 @@ serve(async (req) => {
     const apiKey = Deno.env.get("GEMINI_API_KEY_CROP") || Deno.env.get("GEMINI_API_KEY");
     if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
 
-    // Download Image
     const { data: imageBlob, error: downloadError } = await supabase.storage
       .from('crop-diagnoses')
       .download(image_path);
 
     if (downloadError) throw new Error(`Storage Error: ${downloadError.message}`);
 
-    // Encode Base64
     const buffer = await imageBlob.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
     let binary = "";
     for (let i = 0; i < uint8Array.byteLength; i++) binary += String.fromCharCode(uint8Array[i]);
     const base64 = btoa(binary);
 
-    // Call Gemini
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    // Use stable v1 API and latest flash model
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -51,11 +47,14 @@ serve(async (req) => {
     });
 
     const result = await resp.json();
-    if (!resp.ok) throw new Error(`Gemini: ${result.error?.message || "Error"}`);
+    if (!resp.ok) {
+      console.error("Gemini API Error:", result);
+      throw new Error(`Gemini: ${result.error?.message || "Unknown Error"}`);
+    }
 
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("Invalid AI format.");
+    if (!jsonMatch) throw new Error("Invalid AI format returned.");
 
     return new Response(JSON.stringify({ success: true, diagnosis: JSON.parse(jsonMatch[0]) }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
