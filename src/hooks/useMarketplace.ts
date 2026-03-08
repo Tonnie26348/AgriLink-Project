@@ -15,8 +15,13 @@ export interface MarketplaceListing {
   image_url: string | null;
   harvest_date: string | null;
   created_at: string;
+  is_bulk_available: boolean;
+  bulk_min_quantity: number;
+  bulk_discount_percentage: number;
   farmer_name?: string;
   farmer_location?: string;
+  rating?: number;
+  review_count?: number;
 }
 
 interface UseMarketplaceOptions {
@@ -69,11 +74,33 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
         throw error;
       }
 
-      const formattedListings = (data as unknown as MarketplaceItemResponse[] || []).map((item) => ({
-        ...item,
-        farmer_name: item.profiles?.full_name || "Local Farmer",
-        farmer_location: item.profiles?.location || "Kenya",
-      }));
+      // Fetch ratings for these listings
+      const listingIds = (data || []).map(l => l.id);
+      const { data: reviewsData } = await supabase
+        .from("reviews")
+        .select("listing_id, rating")
+        .in("listing_id", listingIds);
+
+      // Aggregate ratings
+      const ratingMap: Record<string, { total: number, count: number }> = {};
+      reviewsData?.forEach(rev => {
+        if (!ratingMap[rev.listing_id]) {
+          ratingMap[rev.listing_id] = { total: 0, count: 0 };
+        }
+        ratingMap[rev.listing_id].total += rev.rating;
+        ratingMap[rev.listing_id].count += 1;
+      });
+
+      const formattedListings = (data as unknown as MarketplaceItemResponse[] || []).map((item) => {
+        const ratingStats = ratingMap[item.id];
+        return {
+          ...item,
+          farmer_name: item.profiles?.full_name || "Local Farmer",
+          farmer_location: item.profiles?.location || "Kenya",
+          rating: ratingStats ? Number((ratingStats.total / ratingStats.count).toFixed(1)) : undefined,
+          review_count: ratingStats ? ratingStats.count : 0,
+        };
+      });
       setListings(formattedListings);
     } catch (error: unknown) {
       console.error("Error fetching marketplace listings:", error);

@@ -28,7 +28,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Loader2, Sparkles } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Upload, X, Loader2, Sparkles, Scale, Percent } from "lucide-react";
 import { ProduceListing, CreateListingInput } from "@/hooks/useProduceListings";
 
 const listingSchema = z.object({
@@ -39,6 +40,9 @@ const listingSchema = z.object({
   unit: z.string().min(1, "Please select a unit"),
   quantity_available: z.coerce.number().min(0, "Quantity cannot be negative"),
   harvest_date: z.string().optional(),
+  is_bulk_available: z.boolean().default(false),
+  bulk_min_quantity: z.coerce.number().min(1, "Minimum quantity must be at least 1").optional(),
+  bulk_discount_percentage: z.coerce.number().min(0).max(100, "Discount cannot exceed 100%").optional(),
 });
 
 type ListingFormValues = z.infer<typeof listingSchema>;
@@ -89,6 +93,9 @@ const ProduceListingDialog = ({
       unit: listing?.unit || "kg",
       quantity_available: listing?.quantity_available || 0,
       harvest_date: listing?.harvest_date || "",
+      is_bulk_available: listing?.is_bulk_available || false,
+      bulk_min_quantity: listing?.bulk_min_quantity || 100,
+      bulk_discount_percentage: listing?.bulk_discount_percentage || 10,
     },
   });
 
@@ -143,6 +150,9 @@ const ProduceListingDialog = ({
         description: values.description,
         harvest_date: values.harvest_date,
         image_url: imageUrl || undefined,
+        is_bulk_available: values.is_bulk_available,
+        bulk_min_quantity: values.bulk_min_quantity,
+        bulk_discount_percentage: values.bulk_discount_percentage,
       });
       setSubmitting(false);
 
@@ -366,6 +376,77 @@ const ProduceListingDialog = ({
                 </FormItem>
               )}
             />
+
+            {/* Bulk Pricing Section */}
+            <div className="pt-4 border-t border-border/50">
+              <FormField
+                control={form.control}
+                name="is_bulk_available"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-xl border border-border/50 p-4 bg-muted/20">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base font-bold flex items-center gap-2">
+                        <Scale className="w-4 h-4 text-primary" />
+                        Bulk Pricing
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Offer discounts for institutional buyers
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch("is_bulk_available") && (
+                <div className="grid grid-cols-2 gap-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <FormField
+                    control={form.control}
+                    name="bulk_min_quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold flex items-center gap-1.5">
+                          Min. Bulk Qty
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input type="number" {...field} className="pr-12" />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground uppercase">
+                              {form.watch("unit")}
+                            </span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="bulk_discount_percentage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold flex items-center gap-1.5">
+                          Discount %
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input type="number" {...field} className="pr-8" />
+                            <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
 
             <div className="flex gap-3 pt-4">
               <Button

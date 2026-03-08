@@ -60,7 +60,12 @@ const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProp
   });
 
   const quantity = form.watch("quantity");
-  const totalPrice = listing ? quantity * listing.price_per_unit : 0;
+  
+  // Bulk Discount Logic
+  const isBulkQualifying = listing?.is_bulk_available && quantity >= (listing.bulk_min_quantity || 100);
+  const discountMultiplier = isBulkQualifying ? (1 - (listing.bulk_discount_percentage || 10) / 100) : 1;
+  const unitPrice = listing ? listing.price_per_unit * discountMultiplier : 0;
+  const totalPrice = quantity * unitPrice;
 
   const handleQuantityChange = (delta: number) => {
     const current = form.getValues("quantity");
@@ -78,7 +83,7 @@ const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProp
         {
           listing_id: listing.id,
           quantity: data.quantity,
-          price_per_unit: listing.price_per_unit,
+          price_per_unit: unitPrice, // Pass the potentially discounted price
         },
       ],
       delivery_address: data.delivery_address,
@@ -259,6 +264,33 @@ const OrderDialog = ({ listing, open, onOpenChange, onSuccess }: OrderDialogProp
                   </FormItem>
                 )}
               />
+
+              {/* Bulk Discount Info */}
+              {listing.is_bulk_available && (
+                <div className={`p-3 rounded-xl border flex items-center gap-3 transition-colors ${
+                  isBulkQualifying 
+                    ? "bg-green-500/10 border-green-500/20 text-green-700" 
+                    : "bg-muted border-border/50 text-muted-foreground"
+                }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isBulkQualifying ? "bg-green-500/20" : "bg-muted-foreground/10"
+                  }`}>
+                    <Scale className={`w-4 h-4 ${isBulkQualifying ? "text-green-600" : "text-muted-foreground"}`} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold">
+                      {isBulkQualifying 
+                        ? `Bulk discount applied! (${listing.bulk_discount_percentage}% off)` 
+                        : `Order ${listing.bulk_min_quantity} ${listing.unit} for a ${listing.bulk_discount_percentage}% discount`}
+                    </p>
+                    {!isBulkQualifying && (
+                      <p className="text-[10px] opacity-70">
+                        Add {(listing.bulk_min_quantity - quantity).toFixed(1)} more {listing.unit} to save
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Order Total */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">

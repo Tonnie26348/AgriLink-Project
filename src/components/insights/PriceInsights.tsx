@@ -11,8 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sparkles, AlertCircle, TrendingUp, TrendingDown, Minus, Info } from "lucide-react";
+import { Sparkles, AlertCircle, TrendingUp, TrendingDown, Minus, Info, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+// FastAPI Service Types
+interface PricePredictionResponse {
+  predicted_price: number;
+  confidence_interval: [number, number];
+  recommendation: string;
+  trend: "Rising" | "Falling" | "Stable";
+}
 
 interface PriceGuidance {
   suggestedPriceMin: number;
@@ -35,6 +43,8 @@ interface PriceInsightsProps {
   location?: string;
 }
 
+const AI_SERVICE_URL = "http://localhost:8000"; // Default FastAPI port
+
 export const PriceInsights = ({ 
   listings,
   location = "Kenya" 
@@ -48,12 +58,56 @@ export const PriceInsights = ({
 
   const { toast } = useToast();
 
+  const fetchAIInsights = async (): Promise<PriceGuidance | null> => {
+    try {
+      // Prepare prediction request
+      const response = await fetch(`${AI_SERVICE_URL}/predict-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          crop_type: selected.name,
+          location: location,
+          historical_prices: [selected.price_per_unit * 0.95, selected.price_per_unit, selected.price_per_unit * 1.05],
+          seasonal_factor: 0.5,
+          demand_level: "Medium",
+          supply_level: "Medium"
+        })
+      });
+
+      if (!response.ok) throw new Error("FastAPI service unavailable");
+
+      const data: PricePredictionResponse = await response.json();
+      
+      const price = selected.price_per_unit;
+      const [min, max] = data.confidence_interval;
+      const position = price < min ? "below" : price > max ? "above" : "within";
+
+      return {
+        suggestedPriceMin: min,
+        suggestedPriceMax: max,
+        demandLevel: "Medium",
+        reasoning: data.recommendation,
+        pricePosition: position
+      };
+    } catch (err) {
+      console.warn("FastAPI prediction failed, falling back to Gemini/Simulation");
+      return null;
+    }
+  };
+
   const fetchGuidance = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // 1. Try Live AI from Supabase Edge Function
+      // 1. Try FastAPI specialized model first
+      const fastApiData = await fetchAIInsights();
+      if (fastApiData) {
+        setGuidance(fastApiData);
+        return;
+      }
+
+      // 2. Try Live AI from Supabase Edge Function (Gemini)
       const { data, error: functionError } = await supabase.functions.invoke('price-insights', {
         body: { 
           produceType: selected.name, 
@@ -68,8 +122,8 @@ export const PriceInsights = ({
         return;
       }
 
-      // 2. Fallback to Simulated Logic if Edge Function fails (e.g., no API Key yet)
-      console.warn("Live AI failed or not configured, using simulated logic:", functionError);
+      // 3. Fallback to Simulated Logic
+      console.warn("Advanced AI failed, using local simulation logic");
       
       await new Promise(resolve => setTimeout(resolve, 1000));
       const price = selected.price_per_unit;

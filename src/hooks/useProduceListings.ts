@@ -17,6 +17,9 @@ export interface ProduceListing {
   image_url: string | null;
   is_available: boolean;
   harvest_date: string | null;
+  is_bulk_available: boolean;
+  bulk_min_quantity: number;
+  bulk_discount_percentage: number;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +33,9 @@ export interface CreateListingInput {
   quantity_available: number;
   harvest_date?: string;
   image_url?: string;
+  is_bulk_available?: boolean;
+  bulk_min_quantity?: number;
+  bulk_discount_percentage?: number;
 }
 
 export const useProduceListings = () => {
@@ -90,6 +96,9 @@ export const useProduceListings = () => {
           quantity_available: input.quantity_available,
           harvest_date: input.harvest_date || null,
           image_url: input.image_url || null,
+          is_bulk_available: input.is_bulk_available || false,
+          bulk_min_quantity: input.bulk_min_quantity || 100,
+          bulk_discount_percentage: input.bulk_discount_percentage || 10,
         })
         .select();
 

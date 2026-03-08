@@ -458,9 +458,8 @@ interface ProduceCardProps {
 const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, onCardClick, isFavorite, onToggleFavorite }: ProduceCardProps) => {
   const categoryEmoji = EMOJI_MAP[listing.category] || "📦";
   
-  // Mock rating data for UI polish
-  const rating = useMemo(() => (Math.random() * (5 - 4) + 4).toFixed(1), []);
-  const reviewCount = useMemo(() => Math.floor(Math.random() * 50) + 5, []);
+  const displayRating = listing.rating || "New";
+  const displayReviewCount = listing.review_count || 0;
 
   return (
     <Card 
@@ -488,6 +487,12 @@ const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, onCardClick, is
           {listing.quantity_available < 10 && (
             <Badge variant="destructive" className="font-bold shadow-sm animate-pulse">
               Low Stock
+            </Badge>
+          )}
+          {listing.is_bulk_available && (
+            <Badge className="bg-primary text-primary-foreground border-none shadow-sm font-bold flex items-center gap-1">
+              <Scale className="w-3 h-3" />
+              Bulk Available
             </Badge>
           )}
         </div>
@@ -535,7 +540,8 @@ const ProduceCard = ({ listing, onOrder, onAddToCart, onMessage, onCardClick, is
           </h3>
           <div className="flex items-center gap-1 bg-yellow-400/10 text-yellow-600 px-2 py-0.5 rounded-lg text-[10px] font-bold">
             <Star className="w-3 h-3 fill-current" />
-            {rating}
+            {displayRating}
+            {displayReviewCount > 0 && <span className="text-muted-foreground ml-0.5">({displayReviewCount})</span>}
           </div>
         </div>
         
