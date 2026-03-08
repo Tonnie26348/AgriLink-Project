@@ -58,30 +58,26 @@ const AIChatDialog = ({ open, onOpenChange, initialMessage }: AIChatDialogProps)
         parts: [{ text: m.text }]
       }));
 
-      const { data, error } = await supabase.functions.invoke("ai-assistant", {
-        body: { prompt: userMessage, history },
+      // Use explicit timeout for the fetch call
+      const invokePromise = supabase.functions.invoke("ai-assistant", {
+        body: { message: userMessage, history },
       });
 
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("AI Assistant is taking too long. Please try a shorter question.")), 30000)
+      );
+
+      const { data, error } = (await Promise.race([invokePromise, timeoutPromise])) as { 
+        data: { success: boolean; text: string; error?: string } | null, 
+        error: Error | null 
+      };
+
       if (error) {
-        let errorMessage = "I'm sorry, I encountered an error. Please try again.";
-        try {
-          // Check for standard Error object with message
-          if (error instanceof Error) {
-            errorMessage = error.message;
-          } else if (typeof error === 'object' && error !== null && 'message' in error) {
-            errorMessage = String((error as { message: unknown }).message);
-          }
-          
-          // Check for Supabase Edge Function error context
-          const errWithContext = error as { context?: { json: () => Promise<{ error?: string }> } };
-          if (errWithContext.context && typeof errWithContext.context.json === 'function') {
-            const body = await errWithContext.context.json();
-            if (body && body.error) errorMessage = body.error;
-          }
-        } catch (e) {
-          console.error("Could not parse error body", e);
-        }
-        throw new Error(errorMessage);
+        throw new Error(error.message || "Connection failed");
+      }
+
+      if (!data || data.success === false) {
+        throw new Error(data?.error || "AI Service failure");
       }
 
       setMessages(prev => [...prev, { role: "model", text: data.text }]);

@@ -9,12 +9,18 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { message, history } = await req.json();
-    const apiKey = Deno.env.get("GEMINI_API_KEY_ASSISTANT") || Deno.env.get("GEMINI_API_KEY");
-    if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
+    // Handle both 'prompt' and 'message' for maximum compatibility
+    const body = await req.json();
+    const userMessage = body.message || body.prompt;
+    const history = body.history || [];
 
-    // Primary: Gemini 2.0 Flash (Fastest), Fallback: Gemini 2.5
-    const models = ["gemini-2.0-flash", "gemini-2.5-flash"];
+    if (!userMessage) throw new Error("No message provided");
+
+    const apiKey = Deno.env.get("GEMINI_API_KEY_ASSISTANT") || Deno.env.get("GEMINI_API_KEY");
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing in Supabase.");
+
+    // confirmed working models for your key
+    const models = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-flash-latest"];
     let lastError = "";
 
     for (const model of models) {
@@ -24,9 +30,9 @@ serve(async (req) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [
-              { role: "user", parts: [{ text: "You are AgriLink AI, a helpful assistant for Kenyan farmers and buyers. Provide concise, expert agricultural advice." }] },
-              ...(history || []),
-              { role: "user", parts: [{ text: message }] }
+              { role: "user", parts: [{ text: "You are AgriLink AI, a helpful assistant for Kenyan farmers and buyers. Provide concise, expert agricultural advice. If asked about prices, use common sense Kenyan market rates." }] },
+              ...history,
+              { role: "user", parts: [{ text: userMessage }] }
             ]
           })
         });
@@ -40,12 +46,12 @@ serve(async (req) => {
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         } else {
-          lastError = result.error?.message || "Model failed";
+          lastError = result.error?.message || "Model failed or returned empty result";
         }
       } catch (e) { lastError = e.message; }
     }
 
-    throw new Error(`AI Assistant failed: ${lastError}`);
+    throw new Error(`AI Service Error: ${lastError}`);
 
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
