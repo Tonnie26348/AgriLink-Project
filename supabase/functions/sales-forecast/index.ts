@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,50 +6,45 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { history, farmerId, cropType } = await req.json();
+    const { produceType, location, historicalSales } = await req.json();
+    const apiKey = Deno.env.get("GEMINI_API_KEY_SALES") || Deno.env.get("GEMINI_API_KEY");
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const models = ["gemini-2.0-flash", "gemini-2.5-flash"];
+    let lastError = "";
 
-    const geminiKey = Deno.env.get("GEMINI_API_KEY_SALES") || Deno.env.get("GEMINI_API_KEY");
-    if (!geminiKey) throw new Error("GEMINI_API_KEY or GEMINI_API_KEY_SALES is missing");
+    const prompt = `Predict future sales for ${produceType} in ${location} based on historical data: ${JSON.stringify(historicalSales)}. 
+    Return JSON ONLY: { "success": true, "forecast": { "expectedDemand": "High/Medium/Low", "trend": "Rising/Stable/Falling", "advice": "..." } }`;
 
-    const prompt = `Forecast Kenyan sales for ${cropType || 'Produce'} based on history: ${JSON.stringify(history)}. 
-    Current: ${new Date().toLocaleString('en-US', { month: 'long' })}. 
-    Return JSON: { "forecast": [{"month": "...", "sales": 100, "confidence": 0.8}], "trend": "Growing", "insight": "...", "recommendations": ["..."] }`;
+    for (const model of models) {
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt + " Respond ONLY with valid JSON." }] }]
-      }),
-    });
+        const result = await resp.json();
+        if (resp.ok && result.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const text = result.candidates[0].content.parts[0].text;
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return new Response(jsonMatch[0], { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+        } else {
+          lastError = result.error?.message || "Model failed";
+        }
+      } catch (e) { lastError = e.message; }
+    }
 
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error?.message || "Gemini API Error");
+    throw new Error(`Sales Forecast failed: ${lastError}`);
 
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("AI failed to return JSON forecast");
-    
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    return new Response(JSON.stringify(parsed), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    console.error("Sales Forecast Error:", msg);
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
 });

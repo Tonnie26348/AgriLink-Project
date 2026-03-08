@@ -6,46 +6,50 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { prompt, history } = await req.json();
-    if (!prompt) throw new Error("No prompt provided");
+    const { message, history } = await req.json();
+    const apiKey = Deno.env.get("GEMINI_API_KEY_ASSISTANT") || Deno.env.get("GEMINI_API_KEY");
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
 
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY_ASSISTANT") || Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY or GEMINI_API_KEY_ASSISTANT is missing");
+    // Primary: Gemini 2.0 Flash (Fastest), Fallback: Gemini 2.5
+    const models = ["gemini-2.0-flash", "gemini-2.5-flash"];
+    let lastError = "";
 
-    const systemPrompt = "You are the AgriLink Assistant. Help Kenyan users with produce, prices, and farming tips. Be concise and friendly. Use Ksh.";
+    for (const model of models) {
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              { role: "user", parts: [{ text: "You are AgriLink AI, a helpful assistant for Kenyan farmers and buyers. Provide concise, expert agricultural advice." }] },
+              ...(history || []),
+              { role: "user", parts: [{ text: message }] }
+            ]
+          })
+        });
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          { role: "user", parts: [{ text: systemPrompt }] },
-          { role: "model", parts: [{ text: "Understood. I am ready." }] },
-          ...(history || []),
-          { role: "user", parts: [{ text: prompt }] }
-        ]
-      }),
-    });
+        const result = await resp.json();
+        if (resp.ok && result.candidates?.[0]?.content?.parts?.[0]?.text) {
+          return new Response(JSON.stringify({ 
+            success: true, 
+            text: result.candidates[0].content.parts[0].text 
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        } else {
+          lastError = result.error?.message || "Model failed";
+        }
+      } catch (e) { lastError = e.message; }
+    }
 
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error?.message || "Gemini API Error");
+    throw new Error(`AI Assistant failed: ${lastError}`);
 
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("AI did not generate a response.");
-
-    return new Response(JSON.stringify({ text }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    console.error("AI Assistant Error:", msg);
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
 });
