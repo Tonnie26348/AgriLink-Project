@@ -127,7 +127,7 @@ export const MarketMap = ({ listings, onLocationSelect, selectedLocations }: Mar
                         </div>
                       </div>
                       <div className="mt-2 pt-2 border-t border-border/40 flex flex-wrap gap-1">
-                        {loc.categories.slice(0, 2).map(c => (
+                        {(loc.categories || []).slice(0, 2).map(c => (
                           <Badge key={c} variant="secondary" className="text-[8px] px-1 py-0 h-4 bg-muted border-none">
                             {c}
                           </Badge>

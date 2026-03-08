@@ -234,7 +234,7 @@ const BuyerDashboard = () => {
                       </div>
                     ) : (
                       <div className="divide-y divide-border/50">
-                        {orders.slice(0, 3).map((order) => (
+                        {(orders || []).slice(0, 3).map((order) => (
                           <div key={order.id} className="p-4 hover:bg-muted/30 transition-colors">
                             <OrderCard order={order} viewAs="buyer" />
                           </div>
@@ -290,7 +290,7 @@ const BuyerDashboard = () => {
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {listings.slice(0, 6).map((item) => (
+                    {(listings || []).slice(0, 6).map((item) => (
                       <div
                         key={item.id}
                         className="p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-secondary/30 transition-all cursor-pointer group flex flex-col h-full"

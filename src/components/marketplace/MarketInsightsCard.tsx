@@ -92,7 +92,7 @@ const MarketInsightsCard = () => {
             <div className="space-y-2">
               <h4 className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground px-1">Price Trends</h4>
               <div className="grid gap-1.5">
-                {data.topPerformers.slice(0, 3).map((item) => (
+                {(data.topPerformers || []).slice(0, 3).map((item) => (
                   <div key={item.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/50">
                     <div className="flex items-center gap-2">
                       <div className={`p-1 rounded-full ${
@@ -119,7 +119,7 @@ const MarketInsightsCard = () => {
                   Best Future Deals
                 </h4>
                 <div className="grid gap-1.5">
-                  {data.recommendations.slice(0, 2).map((rec) => (
+                  {(data.recommendations || []).slice(0, 2).map((rec) => (
                     <div key={rec.name} className="p-2 rounded-lg bg-secondary/5 border border-secondary/10 group hover:bg-secondary/10 transition-colors">
                       <div className="flex items-center justify-between mb-0.5">
                         <span className="text-[11px] font-bold text-foreground">{rec.name}</span>

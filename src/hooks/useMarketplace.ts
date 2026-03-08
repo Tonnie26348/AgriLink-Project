@@ -76,10 +76,25 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
 
       // Fetch ratings for these listings
       const listingIds = (data || []).map(l => l.id);
-      const { data: reviewsData } = await supabase
-        .from("reviews")
-        .select("listing_id, rating")
-        .in("listing_id", listingIds);
+      
+      interface ReviewData {
+        listing_id: string;
+        rating: number;
+      }
+      let reviewsData: ReviewData[] = [];
+      
+      if (listingIds.length > 0) {
+        const { data: revs, error: revError } = await supabase
+          .from("reviews")
+          .select("listing_id, rating")
+          .in("listing_id", listingIds);
+        
+        if (!revError) {
+          reviewsData = (revs || []) as unknown as ReviewData[];
+        } else {
+          console.warn("Could not fetch reviews:", revError.message);
+        }
+      }
 
       // Aggregate ratings
       const ratingMap: Record<string, { total: number, count: number }> = {};
