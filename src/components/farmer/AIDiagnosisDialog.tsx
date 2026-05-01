@@ -162,33 +162,71 @@ const AIDiagnosisDialog = ({
 
           {result && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center justify-between">
-                <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
+              <div className="flex items-center justify-between gap-2">
+                <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px] py-0 px-2">
                   {result.crop_type}
                 </Badge>
-                <Badge variant="outline" className="text-xs">
-                  Confidence: {Math.round(result.confidence * 100)}%
-                </Badge>
+                <div className="flex items-center gap-1">
+                  <div className="w-12 h-1 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-primary transition-all duration-1000" 
+                      style={{ width: `${result.confidence * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-muted-foreground">
+                    {Math.round(result.confidence * 100)}% Match
+                  </span>
+                </div>
               </div>
 
-              <div className="bg-card rounded-xl p-4 border border-border/50 shadow-sm">
-                <h4 className="flex items-center gap-2 font-bold text-foreground mb-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" />
-                  Diagnosis: {result.diagnosis}
-                </h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {result.treatment_advice}
-                </p>
+              <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-soft relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl" />
+                
+                <div className="flex items-start gap-4 mb-4 relative z-10">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 shadow-inner">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Diagnosis</p>
+                    <h4 className="text-lg font-display font-bold text-foreground leading-tight">
+                      {result.diagnosis}
+                    </h4>
+                  </div>
+                </div>
+
+                <div className="space-y-3 relative z-10">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Action Plan</p>
+                  <div className="grid gap-2">
+                    {result.treatment_advice.split('.').filter(s => s.trim().length > 0).slice(0, 3).map((step, i) => (
+                      <div key={i} className="flex items-start gap-3 p-2 rounded-lg bg-muted/30 border border-border/5 transition-all hover:bg-muted/50">
+                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="text-[10px] font-bold text-primary">{i + 1}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-snug">{step.trim()}.</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center gap-2">
-                  <Thermometer className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs text-blue-700 font-medium">Recommended: Isolate</span>
+                <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-bold text-blue-400 uppercase tracking-tighter">Bio-Safety</p>
+                    <p className="text-[11px] font-bold text-blue-700">Isolate Area</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-green-500" />
-                  <span className="text-xs text-green-700 font-medium">Safe for Harvest: No</span>
+                <div className="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-[8px] font-bold text-red-400 uppercase tracking-tighter">Harvest Risk</p>
+                    <p className="text-[11px] font-bold text-red-700">Stop Harvest</p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -252,13 +252,21 @@ export const PriceInsights = ({
           <Badge className={`${getDemandColor(guidance.demandLevel)} border shadow-sm font-bold rounded-lg`}>{guidance.demandLevel} Demand</Badge>
         </div>
 
-        <div className="bg-accent/5 rounded-2xl p-4 border border-accent/10 flex gap-3 relative group">
-          <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 shadow-inner">
-            <Info className="h-4 w-4 text-accent" />
+        <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 relative overflow-hidden group">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Info className="h-3 w-3 text-primary" />
+            </div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Market Logic</p>
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            <span className="font-bold text-foreground">Insight:</span> {guidance.reasoning}
-          </p>
+          <div className="space-y-2">
+            {guidance.reasoning.split('.').filter(s => s.trim().length > 0).slice(0, 2).map((point, i) => (
+              <div key={i} className="flex gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary/30 mt-2 shrink-0" />
+                <p className="text-[11px] text-muted-foreground leading-tight">{point.trim()}.</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <Button 
