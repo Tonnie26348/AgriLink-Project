@@ -36,7 +36,7 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
 
   const handleLogout = async () => {
     await signOut();
-    window.location.href = "/AgriLink/";
+    navigate("/", { replace: true });
   };
 
   const SidebarContent = () => (
