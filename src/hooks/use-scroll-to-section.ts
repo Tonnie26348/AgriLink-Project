@@ -4,15 +4,15 @@ import { useLayoutEffect } from "react";
 export const useScrollToSection = () => {
   const navigate = useNavigate();
   // Ensure this matches the basename in BrowserRouter in App.tsx
-  const basename = "/AgriLink"; 
+  const basename = ""; 
 
   const scrollToSection = (sectionId: string) => {
     console.log("scrollToSection called for:", sectionId);
     console.log("Current pathname:", window.location.pathname);
 
     // Check if current path is not the home path (considering basename)
-    // or if the current path is the basename itself (e.g., /AgriLink/)
-    if (!window.location.pathname.startsWith(basename) || window.location.pathname === basename + "/") {
+    // or if the current path is the home path itself (e.g., /)
+    if (!window.location.pathname.startsWith(basename) || window.location.pathname === "/") {
       console.log("Navigating to home page to scroll.");
       navigate("/");
       sessionStorage.setItem("scrollToSectionId", sectionId);

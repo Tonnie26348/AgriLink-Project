@@ -88,7 +88,7 @@ const ProfilePage = () => {
     setIsResettingPassword(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/AgriLink/profile`,
+        redirectTo: `${window.location.origin}/profile`,
       });
       
       if (error) throw error;

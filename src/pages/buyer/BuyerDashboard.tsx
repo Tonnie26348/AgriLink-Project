@@ -77,27 +77,6 @@ const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboar
     setChatDialogOpen(true);
   };
 
-  const handleLogout = async () => {
-    console.log("Buyer logout initiated");
-    try {
-      await signOut();
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
-      });
-      // Use window.location for a clean break from the dashboard state
-      window.location.href = "/AgriLink/";
-    } catch (error: unknown) {
-      console.error("Logout error:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred during logout.";
-      toast({
-        variant: "destructive",
-        title: "Logout failed",
-        description: errorMessage,
-      });
-    }
-  };
-
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/buyer/dashboard" },
     { id: "market", label: "Market", icon: Search, path: "/buyer/dashboard/market" },
