@@ -14,9 +14,13 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
   // Ensure we handle retries for "Failed to Fetch" network blips
   global: {
-    fetch: (...args) => fetch(...args).catch(err => {
-      console.error("Supabase Fetch Error:", err);
-      throw err;
-    })
+    fetch: (...args) => {
+      // Trigger activity event for session timeout tracking
+      window.dispatchEvent(new CustomEvent('supabase-activity'));
+      return fetch(...args).catch(err => {
+        console.error("Supabase Fetch Error:", err);
+        throw err;
+      });
+    }
   }
 });

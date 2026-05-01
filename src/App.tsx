@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SessionTimeoutHandler } from "@/components/auth/SessionTimeoutHandler";
 import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -43,6 +44,7 @@ const App = () => (
     <ThemeProvider defaultTheme="light" storageKey="agrilink-ui-theme">
       <LanguageProvider>
         <AuthProvider>
+          <SessionTimeoutHandler />
           <CartProvider>
             <TooltipProvider>
               <Toaster />
