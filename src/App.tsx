@@ -44,12 +44,12 @@ const App = () => (
     <ThemeProvider defaultTheme="light" storageKey="agrilink-ui-theme">
       <LanguageProvider>
         <AuthProvider>
-          <SessionTimeoutHandler />
           <CartProvider>
             <TooltipProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <SessionTimeoutHandler />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path="/" element={<Index />} />
