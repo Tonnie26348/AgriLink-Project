@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const role = await fetchUserRole(data.user.id);
         setUserRole(role);
     }
-    return { error };
+    return { error, data };
   };
 
   const signOut = async () => {

@@ -44,7 +44,13 @@ interface BuyerDashboardProps {
 const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const activeTab = propActiveTab;
+
+  const handleTabChange = (tab: string) => {
+    const path = tab === "overview" ? "/buyer/dashboard" : `/buyer/dashboard/${tab}`;
+    navigate(path);
+  };
 
   const { orders, loading: ordersLoading } = useOrders();
   const { listings, loading: listingsLoading } = useMarketplace();
@@ -118,7 +124,7 @@ const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboar
                     Track your orders and find the best farm deals
                   </p>
                 </div>
-                <Button onClick={() => setActiveTab("market")} size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-soft">
+                <Button onClick={() => handleTabChange("market")} size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-soft">
                   <Search className="w-5 h-5 mr-2" />
                   Find Produce
                 </Button>
@@ -150,7 +156,7 @@ const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboar
                       <CardTitle className="text-xl">Recent Orders</CardTitle>
                       <CardDescription>Your latest purchases</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => setActiveTab("orders")}>View All</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleTabChange("orders")}>View All</Button>
                   </CardHeader>
                   <CardContent className="p-0">
                     {ordersLoading ? (
@@ -161,7 +167,7 @@ const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboar
                       <div className="text-center py-12 px-6">
                         <Package className="w-12 h-12 mx-auto text-muted-foreground opacity-20 mb-4" />
                         <p className="text-sm text-muted-foreground mb-4">You haven't placed any orders yet</p>
-                        <Button variant="outline" size="sm" onClick={() => setActiveTab("market")}>Start Shopping</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleTabChange("market")}>Start Shopping</Button>
                       </div>
                     ) : (
                       <div className="divide-y divide-border/50">
@@ -188,13 +194,13 @@ const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboar
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-6 space-y-3">
-                      <Button onClick={() => setActiveTab("market")} variant="outline" className="w-full justify-start gap-2">
+                      <Button onClick={() => handleTabChange("market")} variant="outline" className="w-full justify-start gap-2">
                         <Search className="w-4 h-4 text-secondary" /> Browse Market
                       </Button>
-                      <Button onClick={() => setActiveTab("favorites")} variant="outline" className="w-full justify-start gap-2">
+                      <Button onClick={() => handleTabChange("favorites")} variant="outline" className="w-full justify-start gap-2">
                         <Heart className="w-4 h-4 text-secondary" /> Saved Items
                       </Button>
-                      <Button onClick={() => setActiveTab("messages")} variant="outline" className="w-full justify-start gap-2">
+                      <Button onClick={() => handleTabChange("messages")} variant="outline" className="w-full justify-start gap-2">
                         <MessageSquare className="w-4 h-4 text-secondary" /> Inbox
                       </Button>
                     </CardContent>
@@ -278,7 +284,7 @@ const BuyerDashboard = ({ activeTab: propActiveTab = "overview" }: BuyerDashboar
                   <div className="text-center py-12">
                     <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-20" />
                     <p className="text-muted-foreground mb-4">You haven't saved any items yet</p>
-                    <Button onClick={() => setActiveTab("market")} variant="outline">Browse Market</Button>
+                    <Button onClick={() => handleTabChange("market")} variant="outline">Browse Market</Button>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

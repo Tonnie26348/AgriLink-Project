@@ -43,7 +43,9 @@ import {
   Bot,
   Sparkles,
   Camera,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  DollarSign,
+  TrendingUp
 } from "lucide-react";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -56,7 +58,13 @@ interface FarmerDashboardProps {
 const FarmerDashboard = ({ activeTab: propActiveTab = "overview" }: FarmerDashboardProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const activeTab = propActiveTab;
+
+  const handleTabChange = (tab: string) => {
+    const path = tab === "overview" ? "/farmer/dashboard" : `/farmer/dashboard/${tab}`;
+    navigate(path);
+  };
 
   const { 
     listings, 
