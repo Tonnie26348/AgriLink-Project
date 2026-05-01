@@ -63,7 +63,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col font-sans">
+    <div className="min-h-screen bg-background flex flex-col font-sans pt-16">
       <Header />
       <div className="flex-1 grid lg:grid-cols-2">
         {/* Left Side - Image/Decoration (Swapped for variety) */}
