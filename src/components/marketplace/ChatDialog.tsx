@@ -69,7 +69,7 @@ const ChatDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed z-[100] sm:max-w-[450px] h-[100dvh] sm:h-[600px] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-none rounded-none sm:rounded-2xl">
+      <DialogContent className="fixed z-[100] sm:max-w-[450px] h-[85vh] sm:h-[600px] my-auto flex flex-col p-0 gap-0 overflow-hidden shadow-2xl border-none rounded-2xl">
         <DialogHeader className="p-4 border-b border-border/40 bg-background/80 backdrop-blur-xl sticky top-0 z-10 flex flex-row items-center gap-2">
           <Button 
             variant="ghost" 
