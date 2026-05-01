@@ -243,7 +243,7 @@ const FarmerStorefront = () => {
   );
 };
 
-const ListingCard = memo(({ listing, onClick }: { listing: MarketplaceListing, onClick: () => void }) => {
+export const ListingCard = memo(({ listing, onClick }: { listing: MarketplaceListing, onClick: () => void }) => {
   return (
     <Card 
       className="overflow-hidden border-border/40 bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-elevated transition-all duration-300 group rounded-3xl cursor-pointer"

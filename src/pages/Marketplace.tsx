@@ -100,7 +100,7 @@ const Marketplace = () => {
 
   // Client-side filtering and sorting
   const filteredListings = useMemo(() => {
-    let result = listings.filter(l => {
+    const result = listings.filter(l => {
       const matchesPrice = l.price_per_unit >= priceRange[0] && l.price_per_unit <= priceRange[1];
       const matchesLocation = selectedLocations.length === 0 || selectedLocations.includes(l.farmer_location || "");
       const matchesRating = minRating === null || (l.rating || 0) >= minRating;

@@ -50,7 +50,7 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
       
       // Use the optimized view
       let query = supabase
-        .from("marketplace_view" as any)
+        .from("marketplace_view")
         .select("*")
         .eq("is_available", true)
         .gt("quantity_available", 0)
@@ -69,11 +69,11 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
 
       if (error) throw error;
 
-      const formattedListings = (data || []).map((item: any) => ({
+      const formattedListings = (data || []).map((item) => ({
         ...item,
-        farmer_name: item.farmer_name || "Local Farmer",
-        farmer_location: item.farmer_location || "Kenya",
-      }));
+        farmer_name: (item as unknown as { farmer_name?: string }).farmer_name || "Local Farmer",
+        farmer_location: (item as unknown as { farmer_location?: string }).farmer_location || "Kenya",
+      })) as MarketplaceListing[];
 
       if (isLoadMore) {
         setListings(prev => [...prev, ...formattedListings]);

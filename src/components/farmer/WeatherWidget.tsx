@@ -3,17 +3,33 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cloud, CloudRain, Sun, Thermometer, Wind, Droplets, MapPin, Loader2, CloudLightning } from "lucide-react";
 
+interface ForecastItem {
+  day: string;
+  temp: number;
+  icon: React.ElementType;
+}
+
 interface WeatherData {
   temp: number;
   condition: string;
   humidity: number;
   windSpeed: number;
   location: string;
-  forecast: { day: string; temp: number; icon: any }[];
+  forecast: ForecastItem[];
 }
 
 interface WeatherWidgetProps {
   location?: string;
+}
+
+interface OpenWeatherListItem {
+  dt: number;
+  main: {
+    temp: number;
+  };
+  weather: Array<{
+    main: string;
+  }>;
 }
 
 const API_KEY = ""; // User should provide an OpenWeatherMap API key
@@ -60,10 +76,10 @@ export const WeatherWidget = ({ location: propLocation = "Nakuru, Kenya" }: Weat
           const forecastData = await forecastRes.json();
 
           const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-          const processedForecast = forecastData.list
-            .filter((_: any, i: number) => i % 8 === 0)
+          const processedForecast = (forecastData.list as OpenWeatherListItem[])
+            .filter((_, i) => i % 8 === 0)
             .slice(1, 4)
-            .map((item: any) => {
+            .map((item) => {
               const date = new Date(item.dt * 1000);
               return {
                 day: days[date.getDay()],

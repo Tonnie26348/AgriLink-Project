@@ -1,12 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-
-type Language = "en" | "sw";
-
-interface LanguageContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
-}
+import React, { useState, useEffect } from "react";
+import { Language, LanguageContext } from "./language-context-definition";
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
@@ -44,8 +37,6 @@ const translations: Record<Language, Record<string, string>> = {
     "ai.pricing": "Mkakati wa Bei wa AI",
   }
 };
-
-export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {

@@ -9,12 +9,19 @@ import { PriceInsights } from "@/components/insights/PriceInsights";
 import { Link } from "react-router-dom";
 import { ProduceListing } from "@/hooks/useProduceListings";
 import { Order } from "@/hooks/useOrders";
+import { Profile } from "@/hooks/useProfile";
+
+interface HistoricalSalesData {
+  month: string;
+  fullDate: Date;
+  sales: number;
+}
 
 interface FarmerOverviewTabProps {
   listings: ProduceListing[];
   orders: Order[];
-  profile: any;
-  historicalSalesData: any[];
+  profile: Profile | null;
+  historicalSalesData: HistoricalSalesData[];
   onAddNew: () => void;
   onEdit: (listing: ProduceListing) => void;
   onStartDiagnosis: () => void;
