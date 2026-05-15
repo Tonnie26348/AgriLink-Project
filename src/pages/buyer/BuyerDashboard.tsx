@@ -36,6 +36,7 @@ import { MarketTrends } from "@/components/marketplace/MarketTrends";
 import OnboardingTour from "@/components/OnboardingTour";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { Calendar } from "@/components/ui/calendar";
 
 interface BuyerDashboardProps {
   activeTab?: "overview" | "market" | "orders" | "messages" | "favorites";
