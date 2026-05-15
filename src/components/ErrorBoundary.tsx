@@ -48,11 +48,10 @@ class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
 
-            {process.env.NODE_ENV === "development" && (
-              <pre className="p-4 bg-muted rounded-lg text-xs overflow-auto text-left max-h-40">
-                {this.state.error?.message}
-              </pre>
-            )}
+            <div className="p-4 bg-muted rounded-lg text-xs overflow-auto text-left max-h-40">
+              <p className="font-bold mb-2">Error Details:</p>
+              {this.state.error?.message || "Unknown error"}
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button onClick={() => window.location.reload()} variant="outline" className="gap-2">
