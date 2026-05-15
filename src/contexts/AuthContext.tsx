@@ -34,20 +34,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let isMounted = true;
 
     const initializeAuth = async () => {
+      console.log("AuthProvider: Initializing Auth...");
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!isMounted) return;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error("AuthProvider: getSession error:", sessionError);
+        }
         
+        if (!isMounted) {
+          console.log("AuthProvider: Unmounted before session fetched");
+          return;
+        }
+        
+        console.log("AuthProvider: Session fetched:", session ? "Active" : "None");
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log("AuthProvider: Fetching role for user:", session.user.id);
           const role = await fetchUserRole(session.user.id);
+          console.log("AuthProvider: Role fetched:", role);
           if (isMounted) setUserRole(role);
         }
       } catch (error) {
-        console.error("AuthContext: Initialization error:", error);
+        console.error("AuthProvider: Initialization exception:", error);
       } finally {
+        console.log("AuthProvider: Initialization complete, setting loading to false");
         if (isMounted) setLoading(false);
       }
     };
