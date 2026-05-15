@@ -125,7 +125,7 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
 
       <div className="flex-1 flex flex-col min-w-0 h-screen lg:h-full overflow-hidden">
         {/* Mobile Header */}
-        <header className="lg:hidden h-16 bg-background/80 backdrop-blur-xl border-b border-border/40 flex items-center justify-between px-4 sticky top-0 z-50 transition-all duration-300">
+        <header className="lg:hidden h-16 bg-background/80 backdrop-blur-xl border-b border-border/40 flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
           <Link to="/" className="flex items-center gap-2">
             <div className={cn(
               "w-8 h-8 rounded-lg flex items-center justify-center shadow-soft",
