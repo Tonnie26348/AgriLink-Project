@@ -3,9 +3,9 @@ import { useAuth } from "@/contexts/auth-context-definition";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-// Configuration: 15 minutes total, warning at 14 minutes
-const INACTIVITY_TIMEOUT = 15 * 60 * 1000; 
-const WARNING_TIMEOUT = 14 * 60 * 1000; 
+// Configuration: 5 minutes total, warning at 4 minutes
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; 
+const WARNING_TIMEOUT = 4 * 60 * 1000; 
 const STORAGE_KEY = "agrilink-last-activity";
 
 /**
@@ -21,8 +21,6 @@ export const SessionTimeoutHandler = () => {
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const performLogout = useCallback(async () => {
-    console.log("Inactivity logout triggered");
-    
     // Clear any active toasts
     if (warningToastId.current) {
       toast.dismiss(warningToastId.current);

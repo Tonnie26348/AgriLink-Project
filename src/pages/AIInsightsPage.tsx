@@ -164,24 +164,24 @@ const AIInsightsPage = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px]" />
       </div>
 
-      <main className="flex-1 pt-32 pb-20 relative z-10">
+      <main className="flex-1 pt-24 md:pt-32 pb-20 relative z-10">
         <div className="container mx-auto px-4 max-w-6xl">
           
           {/* World-Class Hero Section */}
-          <div className="text-center mb-16 space-y-6">
+          <div className="text-center mb-10 md:mb-16 space-y-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Badge variant="outline" className="bg-white/50 backdrop-blur-sm border-primary/20 text-primary px-4 py-1.5 rounded-full font-semibold shadow-sm">
+              <Badge variant="outline" className="bg-white/50 backdrop-blur-sm border-primary/20 text-primary px-4 py-1.5 rounded-full font-semibold shadow-sm text-xs sm:text-sm">
                 <Sparkles className="w-3.5 h-3.5 mr-2" />
                 Next-Gen Market Intelligence
               </Badge>
             </motion.div>
             
             <motion.h1 
-              className="text-5xl md:text-7xl font-display font-black tracking-tight text-foreground"
+              className="text-3xl sm:text-4xl md:text-7xl font-display font-black tracking-tight text-foreground leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -191,7 +191,7 @@ const AIInsightsPage = () => {
             </motion.h1>
             
             <motion.p 
-              className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium"
+              className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-medium"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -202,27 +202,29 @@ const AIInsightsPage = () => {
 
             {/* Premium Price Search Bar */}
             <motion.div 
-              className="max-w-2xl mx-auto mt-12"
+              className="max-w-2xl mx-auto mt-8 md:mt-12"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <form onSubmit={handlePriceCheck} className="relative group">
-                <div className="absolute inset-0 bg-primary/10 rounded-[2rem] blur-xl group-hover:bg-primary/20 transition-all duration-500 opacity-0 group-focus-within:opacity-100" />
-                <div className="relative bg-white rounded-3xl p-2 shadow-2xl border border-white/50 flex items-center gap-2 ring-1 ring-black/5">
-                  <div className="pl-6 text-muted-foreground group-focus-within:text-primary transition-colors">
-                    <Search className="w-6 h-6" />
+                <div className="absolute inset-0 bg-primary/10 rounded-2xl md:rounded-[2rem] blur-xl group-hover:bg-primary/20 transition-all duration-500 opacity-0 group-focus-within:opacity-100" />
+                <div className="relative bg-white rounded-2xl md:rounded-3xl p-2 shadow-2xl border border-white/50 flex flex-col sm:flex-row items-center gap-2 ring-1 ring-black/5">
+                  <div className="flex-1 flex items-center w-full">
+                    <div className="pl-4 md:pl-6 text-muted-foreground group-focus-within:text-primary transition-colors">
+                      <Search className="w-5 h-5 md:w-6 md:h-6" />
+                    </div>
+                    <Input 
+                      placeholder="Search (e.g. Onions, Maize)" 
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="flex-1 border-none focus-visible:ring-0 text-base md:text-lg font-medium placeholder:text-muted-foreground/60 h-12 md:h-14 bg-transparent"
+                    />
                   </div>
-                  <Input 
-                    placeholder="Search price for Red Onions, Maize, Avocado..." 
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="flex-1 border-none focus-visible:ring-0 text-lg font-medium placeholder:text-muted-foreground/60 h-14 bg-transparent"
-                  />
                   <Button 
                     type="submit" 
                     disabled={checkingPrice} 
-                    className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20"
+                    className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 rounded-xl md:rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20"
                   >
                     {checkingPrice ? <Loader2 className="w-5 h-5 animate-spin" /> : "Check Price"}
                   </Button>
@@ -238,34 +240,34 @@ const AIInsightsPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="mb-16"
+                className="mb-10 md:mb-16"
               >
-                <Card className="rounded-[2.5rem] overflow-hidden border-none shadow-premium bg-white/80 backdrop-blur-xl ring-1 ring-black/5">
+                <Card className="rounded-3xl md:rounded-[2.5rem] overflow-hidden border-none shadow-premium bg-white/80 backdrop-blur-xl ring-1 ring-black/5">
                   <CardContent className="p-0">
                     <div className="grid md:grid-cols-12">
-                      <div className="md:col-span-5 bg-gradient-to-br from-primary to-emerald-700 p-12 text-white flex flex-col justify-center text-center md:text-left">
-                        <Badge className="bg-white/20 text-white w-fit mb-6 mx-auto md:mx-0">Live Analysis</Badge>
-                        <h3 className="text-3xl font-display font-bold mb-2 capitalize">{query}</h3>
-                        <div className="text-5xl font-black mb-6">
+                      <div className="md:col-span-5 bg-gradient-to-br from-primary to-emerald-700 p-8 md:p-12 text-white flex flex-col justify-center text-center md:text-left">
+                        <Badge className="bg-white/20 text-white w-fit mb-4 md:mb-6 mx-auto md:mx-0">Live Analysis</Badge>
+                        <h3 className="text-2xl md:text-3xl font-display font-bold mb-2 capitalize">{query}</h3>
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 md:mb-6">
                           Ksh {specificGuidance.suggestedPriceMin} - {specificGuidance.suggestedPriceMax}
                         </div>
                         <div className="flex items-center gap-3 justify-center md:justify-start">
                           <div className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md flex items-center gap-2">
                             <Target className="w-4 h-4" />
-                            <span className="text-sm font-bold">Demand: {specificGuidance.demandLevel}</span>
+                            <span className="text-xs sm:text-sm font-bold">Demand: {specificGuidance.demandLevel}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="md:col-span-7 p-12 space-y-6">
+                      <div className="md:col-span-7 p-8 md:p-12 space-y-4 md:space-y-6">
                         <div className="flex items-center gap-3 text-primary">
-                          <Bot className="w-6 h-6" />
-                          <h4 className="font-bold text-xl uppercase tracking-tight">AI Reasoning</h4>
+                          <Bot className="w-5 h-5 md:w-6 md:h-6" />
+                          <h4 className="font-bold text-lg md:text-xl uppercase tracking-tight">AI Reasoning</h4>
                         </div>
-                        <p className="text-lg text-muted-foreground leading-relaxed italic">
+                        <p className="text-base md:text-lg text-muted-foreground leading-relaxed italic">
                           "{specificGuidance.reasoning}"
                         </p>
-                        <div className="pt-6 border-t border-muted flex items-center justify-between">
-                          <span className="text-sm font-bold text-muted-foreground uppercase">Price Position</span>
+                        <div className="pt-6 border-t border-muted flex flex-col sm:flex-row items-center justify-between gap-4">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Price Position</span>
                           <Badge variant="secondary" className="px-4 py-1.5 rounded-lg capitalize font-bold text-primary">
                             {specificGuidance.pricePosition} Average
                           </Badge>
@@ -279,20 +281,20 @@ const AIInsightsPage = () => {
           </AnimatePresence>
 
           {/* Core Analytics Tabs */}
-          <Tabs defaultValue="trends" className="w-full space-y-12">
+          <Tabs defaultValue="trends" className="w-full space-y-8 md:space-y-12">
             <div className="flex justify-center">
-              <TabsList className="bg-white p-1 rounded-2xl shadow-lg border border-white/50 ring-1 ring-black/5 h-14 w-full md:w-fit">
-                <TabsTrigger value="trends" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Market Trends
+              <TabsList className="bg-white p-1 rounded-2xl shadow-lg border border-white/50 ring-1 ring-black/5 h-auto md:h-14 w-full md:w-fit grid grid-cols-3 md:flex">
+                <TabsTrigger value="trends" className="rounded-xl px-2 md:px-8 py-3 md:py-0 font-bold text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white transition-all flex flex-col md:flex-row gap-1">
+                  <TrendingUp className="w-4 h-4 md:mr-2" />
+                  Trends
                 </TabsTrigger>
-                <TabsTrigger value="heatmap" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Demand Map
+                <TabsTrigger value="heatmap" className="rounded-xl px-2 md:px-8 py-3 md:py-0 font-bold text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white transition-all flex flex-col md:flex-row gap-1">
+                  <MapPin className="w-4 h-4 md:mr-2" />
+                  Map
                 </TabsTrigger>
-                <TabsTrigger value="planting" className="rounded-xl px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
-                  <Target className="w-4 h-4 mr-2" />
-                  Planting Strategy
+                <TabsTrigger value="planting" className="rounded-xl px-2 md:px-8 py-3 md:py-0 font-bold text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-white transition-all flex flex-col md:flex-row gap-1">
+                  <Target className="w-4 h-4 md:mr-2" />
+                  Strategy
                 </TabsTrigger>
               </TabsList>
             </div>

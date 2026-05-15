@@ -7,7 +7,11 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "3rem",
+      padding: {
+        DEFAULT: "1rem",
+        sm: "2rem",
+        lg: "3rem",
+      },
       screens: {
         lg: "1100px", // Custom wider than default (1024px)
         xl: "1350px", // Custom wider than default (1280px)

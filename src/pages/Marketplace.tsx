@@ -163,7 +163,7 @@ const Marketplace = () => {
     <div className="min-h-screen bg-muted/30 pt-16 font-sans">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Filters Sidebar - Desktop */}
           <aside className="hidden md:block w-64 shrink-0 space-y-8">

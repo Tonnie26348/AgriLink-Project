@@ -82,8 +82,6 @@ export const useProduceListings = () => {
     );
 
     try {
-      console.log("CreateListing: Attempting insert...", input);
-      
       const insertPromise = supabase
         .from("produce_listings")
         .insert({
@@ -106,7 +104,6 @@ export const useProduceListings = () => {
       const { data, error } = (await Promise.race([insertPromise, timeoutPromise])) as { data: ProduceListing[] | null; error: PostgrestError | null };
 
       if (error) {
-        console.error("CreateListing: Supabase error:", error);
         throw error;
       }
 

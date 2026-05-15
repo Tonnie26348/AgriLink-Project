@@ -60,7 +60,6 @@ export const useProfile = () => {
 
     try {
       setLoading(true);
-      console.log("Updating profile with:", updates);
       
       // Standard table update is better for partial updates (e.g. just avatar_url)
       const { error } = await supabase

@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserRole = async (userId: string) => {
     try {
-      console.log("AuthContext: Fetching role for", userId);
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
@@ -24,7 +23,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return null;
       }
       
-      console.log("AuthContext: Role found:", data?.role);
       return data?.role as AppRole || null;
     } catch (error) {
       console.error("AuthContext: Exception fetching user role:", error);
@@ -59,7 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("AuthContext: Auth event:", event);
         if (!isMounted) return;
 
         setSession(session);

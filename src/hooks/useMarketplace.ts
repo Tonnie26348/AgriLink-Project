@@ -135,7 +135,6 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
           table: 'produce_listings'
         },
         () => {
-          console.log("Real-time marketplace update received");
           fetchListings(0, false);
         }
       )

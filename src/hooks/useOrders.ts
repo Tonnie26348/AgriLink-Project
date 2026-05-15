@@ -155,14 +155,12 @@ export const useOrders = () => {
     );
 
     try {
-      console.log("CreateOrder: Starting process...", input);
       const totalAmount = input.items.reduce(
         (acc, item) => acc + item.quantity * item.price_per_unit,
         0
       );
 
       // 1. Create the order
-      console.log("CreateOrder: Inserting order row...");
       const orderInsertPromise = supabase
         .from("orders")
         .insert({
@@ -179,14 +177,12 @@ export const useOrders = () => {
       const { data: order, error: orderError } = (await Promise.race([orderInsertPromise, timeoutPromise])) as { data: Order | null; error: PostgrestError | null };
 
       if (orderError) {
-        console.error("CreateOrder: Order insert error:", orderError);
         throw orderError;
       }
 
       if (!order) throw new Error("Order was not created");
 
       // 2. Create the order items
-      console.log("CreateOrder: Inserting order items...");
       const orderItems = input.items.map((item) => ({
         order_id: order.id,
         listing_id: item.listing_id,
@@ -200,12 +196,10 @@ export const useOrders = () => {
         .insert(orderItems);
 
       if (itemsError) {
-        console.error("CreateOrder: Order items insert error:", itemsError);
         throw itemsError;
       }
 
       // 3. Update produce listing quantities
-      console.log("CreateOrder: Updating stock quantities...");
       for (const item of input.items) {
         const { data: currentListing } = await supabase
             .from("produce_listings")
@@ -222,7 +216,6 @@ export const useOrders = () => {
         }
       }
 
-      console.log("CreateOrder: Success!");
       toast({
         title: "Order placed!",
         description: "Your order has been sent to the farmer.",

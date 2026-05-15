@@ -117,13 +117,13 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
   );
 
   return (
-    <div className="min-h-screen bg-muted/30 flex">
+    <div className="min-h-screen lg:h-screen bg-muted/30 flex overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-72 h-screen sticky top-0 shrink-0">
+      <aside className="hidden lg:block w-72 h-full sticky top-0 shrink-0">
         <SidebarContent />
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen lg:h-full overflow-hidden">
         {/* Mobile Header */}
         <header className="lg:hidden h-16 bg-background/80 backdrop-blur-xl border-b border-border/40 flex items-center justify-between px-4 sticky top-0 z-50 transition-all duration-300">
           <Link to="/" className="flex items-center gap-2">
@@ -178,7 +178,7 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto flex flex-col no-scrollbar scroll-smooth">
-          <div className="flex-1 container mx-auto px-4 md:px-8 py-8 animate-fade-in">
+          <div className="flex-1 container mx-auto py-8 animate-fade-in">
             {children}
           </div>
           
