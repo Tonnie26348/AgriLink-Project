@@ -2,6 +2,7 @@ import { TrendingUp, Users, Leaf, Globe, Target, CheckCircle, Loader2 } from "lu
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useImpactStats } from "@/hooks/useImpactStats";
+import { Button } from "@/components/ui/button";
 
 const ImpactPage = () => {
   const { incomeIncrease, totalUsers, reductionWaste, counties, loading } = useImpactStats();
