@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown, Minus, Sparkles, RefreshCw } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, Minus, Sparkles, RefreshCw, Calendar, Info } from "lucide-react";
 
 interface MarketTrend {
   name: string;
