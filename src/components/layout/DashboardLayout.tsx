@@ -177,7 +177,7 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto flex flex-col no-scrollbar scroll-smooth">
+        <main className="flex-1 overflow-y-auto flex flex-col no-scrollbar scroll-smooth pt-16 lg:pt-0">
           <div className="flex-1 container mx-auto py-8 animate-fade-in">
             {children}
           </div>
