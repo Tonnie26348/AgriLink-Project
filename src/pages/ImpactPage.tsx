@@ -37,16 +37,19 @@ const ImpactPage = () => {
             {/* Section Header */}
             <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in">
               <span className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full text-sm font-semibold mb-6 shadow-sm">
-                Our Mission & Impact
+                Our Impact
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold mb-8 tracking-tight leading-tight">
                 Transforming
-                <span className="text-secondary block mt-2">Agriculture Together</span>
+                <span className="text-secondary block mt-2">Agriculture</span>
               </h1>
-              <p className="text-xl text-primary-foreground/80 leading-relaxed font-light">
+              <p className="text-xl text-primary-foreground/80 leading-relaxed font-light mb-8">
                 AgriLink is more than a platform — it's a movement to empower farmers, 
-                create fair markets, and build sustainable food systems across Africa.
+                create fair markets, and build sustainable food systems.
               </p>
+              <Button size="lg" variant="secondary" className="shadow-soft hover:scale-105 transition-transform">
+                Discover Our Impact
+              </Button>
             </div>
 
             {/* Stats Grid */}

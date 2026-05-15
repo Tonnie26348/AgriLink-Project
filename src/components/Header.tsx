@@ -23,8 +23,8 @@ const Header = () => {
   const navLinks = [
     { label: t("nav.home"), to: "/" },
     { label: t("nav.marketplace"), to: "/marketplace" },
-    { label: t("nav.ai_insights"), to: "/#ai-insights" },
-    { label: t("nav.impact"), to: "/#impact" },
+    { label: t("nav.ai_insights"), to: "/ai-insights" },
+    { label: t("nav.impact"), to: "/impact" },
   ];
 
   const handleSignOut = async () => {
