@@ -1,33 +1,17 @@
-import { TrendingUp, Users, Leaf, Globe, Target, CheckCircle } from "lucide-react";
+import { TrendingUp, Users, Leaf, Globe, Target, CheckCircle, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useImpactStats } from "@/hooks/useImpactStats";
 
-const impacts = [
-  {
-    icon: TrendingUp,
-    stat: "40%",
-    label: "Income Increase",
-    description: "Average farmer income increase after joining AgriLink",
-  },
-  {
-    icon: Users,
-    stat: "10K+",
-    label: "Users Connected",
-    description: "Farmers and buyers actively trading on the platform",
-  },
-  {
-    icon: Leaf,
-    stat: "30%",
-    label: "Less Waste",
-    description: "Reduction in post-harvest losses through better market access",
-  },
-  {
-    icon: Globe,
-    stat: "47",
-    label: "Counties",
-    description: "Kenyan counties with active AgriLink users",
-  },
-];
+const ImpactPage = () => {
+  const { incomeIncrease, totalUsers, reductionWaste, counties, loading } = useImpactStats();
+
+  const impacts = [
+    { icon: TrendingUp, stat: incomeIncrease, label: "Income Increase", description: "Average farmer income increase" },
+    { icon: Users, stat: totalUsers, label: "Users Connected", description: "Farmers and buyers on AgriLink" },
+    { icon: Leaf, stat: reductionWaste, label: "Less Waste", description: "Reduction in post-harvest losses" },
+    { icon: Globe, stat: counties, label: "Counties", description: "Kenyan counties covered" },
+  ];
 
 const objectives = [
   "Improve farmer access to reliable markets",
