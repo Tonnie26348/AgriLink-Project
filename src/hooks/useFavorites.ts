@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth-context-definition";
 import { useToast } from "@/hooks/use-toast";
@@ -12,92 +12,64 @@ export interface Favorite {
 export const useFavorites = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchFavorites = useCallback(async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
+  const { data: favorites = [], isLoading } = useQuery({
+    queryKey: ["favorites", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from("favorites")
         .select("*")
         .eq("buyer_id", user.id);
 
       if (error) throw error;
-      setFavorites(data || []);
-    } catch (error: unknown) {
-      console.error("Error fetching favorites:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+      return data || [];
+    },
+    enabled: !!user,
+  });
 
-  const toggleFavorite = async (listingId: string) => {
-    if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to save items.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const toggleMutation = useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!user) throw new Error("Sign in required");
 
-    try {
-      const existing = favorites.find(f => f.listing_id === listingId);
+      const existing = favorites.find((f) => f.listing_id === listingId);
 
       if (existing) {
-        // Remove favorite
-        const { error } = await supabase
-          .from("favorites")
-          .delete()
-          .eq("id", existing.id);
-
+        const { error } = await supabase.from("favorites").delete().eq("id", existing.id);
         if (error) throw error;
-
-        setFavorites(prev => prev.filter(f => f.id !== existing.id));
-        toast({
-          title: "Removed from favorites",
-          description: "Item removed from your saved list.",
-        });
+        return { type: "removed", id: existing.id };
       } else {
-        // Add favorite
         const { data, error } = await supabase
           .from("favorites")
           .insert({ buyer_id: user.id, listing_id: listingId })
           .select()
           .single();
-
         if (error) throw error;
-
-        setFavorites(prev => [...prev, data]);
-        toast({
-          title: "Added to favorites",
-          description: "Item saved to your favorites list.",
-        });
+        return { type: "added", data };
       }
-    } catch (error: unknown) {
-      const err = error as Error;
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["favorites", user?.id] });
+      toast({
+        title: result.type === "added" ? "Added to favorites" : "Removed from favorites",
+        description: result.type === "added" ? "Item saved to your favorites list." : "Item removed from your saved list.",
+      });
+    },
+    onError: (error: Error) => {
       toast({
         title: "Error updating favorites",
-        description: err.message,
+        description: error.message,
         variant: "destructive",
       });
-    }
-  };
-
-  useEffect(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
+    },
+  });
 
   return {
     favorites,
-    loading,
-    toggleFavorite,
-    isFavorite: (listingId: string) => favorites.some(f => f.listing_id === listingId),
+    loading: isLoading,
+    toggleFavorite: (listingId: string) => toggleMutation.mutate(listingId),
+    isFavorite: (listingId: string) => favorites.some((f) => f.listing_id === listingId),
   };
 };
+

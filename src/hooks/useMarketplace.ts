@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/auth-context-definition";
 import { useToast } from "@/hooks/use-toast";
 
 export interface MarketplaceListing {
@@ -28,34 +27,45 @@ interface UseMarketplaceOptions {
   category?: string;
   search?: string;
   limit?: number;
-  offset?: number;
 }
 
 export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
   const { toast } = useToast();
-  const [listings, setListings] = useState<MarketplaceListing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [categories, setCategories] = useState<string[]>([]);
-
-  const [offset, setOffset] = useState(0);
   const limit = options.limit || 12;
 
-  const fetchListings = useCallback(async (currentOffset: number, isLoadMore = false) => {
-    try {
-      if (!isLoadMore) {
-        setLoading(true);
-        setOffset(0);
-      }
-      
-      // Use the optimized view
+  // Query for categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ["marketplace-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("produce_listings")
+        .select("category")
+        .eq("is_available", true);
+
+      if (error) throw error;
+      return Array.from(new Set((data || []).map((item) => item.category))).sort();
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+
+  // Infinite query for listings
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["marketplace-listings", options.category, options.search],
+    queryFn: async ({ pageParam = 0 }) => {
       let query = supabase
         .from("marketplace_view")
         .select("*")
         .eq("is_available", true)
         .gt("quantity_available", 0)
         .order("created_at", { ascending: false })
-        .range(currentOffset, currentOffset + limit - 1);
+        .range(pageParam, pageParam + limit - 1);
 
       if (options.category && options.category !== "All") {
         query = query.eq("category", options.category);
@@ -66,95 +76,29 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
 
-      const formattedListings = (data || []).map((item) => ({
+      return (data || []).map((item) => ({
         ...item,
-        farmer_name: (item as unknown as { farmer_name?: string }).farmer_name || "Local Farmer",
-        farmer_location: (item as unknown as { farmer_location?: string }).farmer_location || "Kenya",
+        farmer_name: (item as any).farmer_name || "Local Farmer",
+        farmer_location: (item as any).farmer_location || "Kenya",
       })) as MarketplaceListing[];
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === limit ? allPages.length * limit : undefined;
+    },
+  });
 
-      if (isLoadMore) {
-        setListings(prev => [...prev, ...formattedListings]);
-      } else {
-        setListings(formattedListings);
-      }
-
-      setHasMore(formattedListings.length === limit);
-    } catch (error: unknown) {
-      console.error("Error fetching marketplace listings:", error);
-      toast({
-        title: "Error fetching listings",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [options.category, options.search, limit, toast]);
-
-  const loadMore = useCallback(() => {
-    if (!loading && hasMore) {
-      const nextOffset = offset + limit;
-      setOffset(nextOffset);
-      fetchListings(nextOffset, true);
-    }
-  }, [loading, hasMore, offset, limit, fetchListings]);
-
-  const fetchCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("produce_listings")
-        .select("category")
-        .eq("is_available", true);
-
-      if (error) throw error;
-
-      const uniqueCategories = Array.from(
-        new Set((data || []).map((item) => item.category))
-      ).sort();
-      
-      setCategories(uniqueCategories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchListings(0, false);
-
-    // Subscribe to real-time changes
-    const channel = supabase
-      .channel('marketplace-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'produce_listings'
-        },
-        () => {
-          fetchListings(0, false);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [options.category, options.search, fetchListings]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const listings = data?.pages.flat() || [];
 
   return {
     listings,
-    loading,
+    loading: isLoading || isFetchingNextPage,
     categories,
-    hasMore,
-    loadMore,
-    refetch: () => fetchListings(0, false),
+    hasMore: !!hasNextPage,
+    loadMore: fetchNextPage,
+    refetch,
   };
 };
+
