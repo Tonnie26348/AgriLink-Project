@@ -13,15 +13,14 @@ const ImpactPage = () => {
     { icon: Globe, stat: counties, label: "Counties", description: "Kenyan counties covered" },
   ];
 
-const objectives = [
-  "Improve farmer access to reliable markets",
-  "Enhance price transparency and decision-making",
-  "Reduce reliance on exploitative middlemen",
-  "Minimize post-harvest losses",
-  "Promote fair and efficient agricultural trade",
-];
+  const objectives = [
+    "Improve farmer access to reliable markets",
+    "Enhance price transparency and decision-making",
+    "Reduce reliance on exploitative middlemen",
+    "Minimize post-harvest losses",
+    "Promote fair and efficient agricultural trade",
+  ];
 
-const ImpactPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background font-sans">
       <Header />
@@ -108,5 +107,6 @@ const ImpactPage = () => {
     </div>
   );
 };
+
 
 export default ImpactPage;
