@@ -52,7 +52,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden">
+            <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden">
               <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">

@@ -44,7 +44,7 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
       <div className="p-6 border-b border-border/10">
         <Link to="/" className="flex items-center gap-3 group">
           <div className={cn(
-            "w-12 h-12 flex items-center justify-center transition-all duration-300 overflow-hidden"
+            "w-16 h-16 flex items-center justify-center transition-all duration-300 overflow-hidden"
           )}>
             <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
           </div>

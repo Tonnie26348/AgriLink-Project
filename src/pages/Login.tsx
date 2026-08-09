@@ -161,7 +161,7 @@ const Login = () => {
           <div className="absolute inset-0 z-20 flex flex-col justify-end p-16 text-white">
             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-glow">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 flex items-center justify-center overflow-hidden">
+                <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
                   <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="text-xl font-bold">AgriLink</span>
