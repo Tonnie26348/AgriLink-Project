@@ -18,9 +18,9 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg', 'placeholder.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'mask-icon.svg', 'placeholder.png'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,jpg,jpeg,woff,woff2}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/zeyxhvrymjdypgfporuy\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
@@ -61,14 +61,14 @@ export default defineConfig(({ mode }) => ({
         start_url: '/',
         icons: [
           {
-            src: 'favicon.ico',
+            src: 'favicon.png',
             sizes: '64x64 32x32 24x24 16x16',
-            type: 'image/x-icon'
+            type: 'image/png'
           },
           {
-            src: 'placeholder.svg',
+            src: 'placeholder.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
