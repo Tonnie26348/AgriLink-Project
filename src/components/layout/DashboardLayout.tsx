@@ -44,10 +44,10 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
       <div className="p-6 border-b border-border/10">
         <Link to="/" className="flex items-center gap-3 group">
           <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300 overflow-hidden",
+            "w-12 h-12 rounded-xl flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300 overflow-hidden",
             role === "farmer" ? "bg-gradient-to-br from-primary to-primary/80" : "bg-gradient-to-br from-secondary to-secondary/80"
           )}>
-            <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-cover" />
+            <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-display font-bold text-foreground leading-none">
