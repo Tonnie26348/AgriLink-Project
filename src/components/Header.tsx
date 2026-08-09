@@ -52,8 +52,8 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300 transform group-hover:scale-105 overflow-hidden">
-              <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
+            <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden">
+              <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">

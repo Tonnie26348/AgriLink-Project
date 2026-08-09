@@ -31,8 +31,8 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="lg:col-span-4 space-y-6">
             <a href="/" className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
-                <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
+              <div className="w-12 h-12 flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-2xl font-display font-bold text-white">
                 Agri<span className="text-primary">Link</span>
