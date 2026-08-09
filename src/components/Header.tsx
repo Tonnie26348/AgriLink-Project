@@ -140,8 +140,8 @@ const Header = () => {
               <SheetContent side="right" className="w-[300px] sm:w-[380px] border-l border-border/50 backdrop-blur-xl bg-background/95">
                 <SheetHeader className="text-left pb-6 border-b border-border/50">
                   <SheetTitle className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                      <Leaf className="w-5 h-5 text-primary-foreground" />
+                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
+                      <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
                     </div>
                     <span className="font-display font-bold text-xl">AgriLink</span>
                   </SheetTitle>

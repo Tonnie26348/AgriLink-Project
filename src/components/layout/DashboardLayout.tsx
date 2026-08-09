@@ -125,10 +125,10 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
         <header className="lg:hidden h-16 bg-background/80 backdrop-blur-xl border-b border-border/40 flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
           <Link to="/" className="flex items-center gap-2">
             <div className={cn(
-              "w-8 h-8 rounded-lg flex items-center justify-center shadow-soft",
+              "w-8 h-8 rounded-lg flex items-center justify-center shadow-soft overflow-hidden",
               role === "farmer" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
             )}>
-              <Leaf className="w-5 h-5 fill-current" />
+              <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
             </div>
             <span className="font-display font-bold text-lg">AgriLink</span>
           </Link>
