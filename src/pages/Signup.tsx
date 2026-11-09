@@ -78,12 +78,12 @@ const Signup = () => {
             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-glow">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
-                  <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
+                  <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="text-xl font-bold">Join the Community</span>
               </div>
               <blockquote className="text-xl font-medium leading-relaxed mb-4">
-                "Finding fresh, organic produce has never been easier. AgriLink gives me confidence in every purchase."
+                "Finding fresh, organic produce has never been easier. Food Supply Chain gives me confidence in every purchase."
               </blockquote>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-white/20" />
@@ -104,7 +104,7 @@ const Signup = () => {
                 Create Account
               </h1>
               <p className="text-muted-foreground text-lg">
-                Join AgriLink to start trading today
+                Join Food Supply Chain to start trading today
               </p>
             </div>
 

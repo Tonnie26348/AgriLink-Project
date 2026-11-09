@@ -53,7 +53,7 @@ const Header = () => {
           {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
             <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 transform group-hover:scale-105 overflow-hidden">
-              <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="text-lg md:text-xl font-display font-bold text-foreground leading-none">

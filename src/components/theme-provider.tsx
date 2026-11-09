@@ -10,7 +10,7 @@ type ThemeProviderProps = {
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "agrilink-ui-theme",
+  storageKey = "fsc-ui-theme",
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(

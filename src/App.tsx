@@ -41,7 +41,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="agrilink-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="fsc-ui-theme">
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>

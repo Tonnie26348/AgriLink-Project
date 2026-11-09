@@ -11,7 +11,7 @@ export const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // AgriLink custom variants
+        // Food Supply Chain custom variants
         hero: "bg-gradient-to-r from-secondary to-accent text-secondary-foreground font-bold shadow-elevated hover:shadow-glow hover:scale-105 active:scale-100",
         "hero-outline": "border-2 border-primary-foreground/80 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-semibold",
         accent: "bg-accent text-accent-foreground font-semibold shadow-soft hover:shadow-elevated hover:scale-[1.02] active:scale-100",

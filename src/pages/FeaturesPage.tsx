@@ -54,7 +54,7 @@ const FeaturesPage = () => {
             <span className="text-primary"> Trade Smarter</span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            AgriLink provides all the tools farmers and buyers need for transparent, 
+            Food Supply Chain provides all the tools farmers and buyers need for transparent, 
             efficient agricultural trade.
           </p>
         </div>

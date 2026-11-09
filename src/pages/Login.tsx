@@ -162,9 +162,9 @@ const Login = () => {
             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-3xl shadow-glow">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
-                  <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
+                  <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain" />
                 </div>
-                <span className="text-xl font-bold">AgriLink</span>
+                <span className="text-xl font-bold">Food Supply Chain</span>
               </div>
               <blockquote className="text-xl font-medium leading-relaxed mb-4">
                 "Connecting with buyers directly has completely transformed my farm's profitability. The transparency is unmatched."

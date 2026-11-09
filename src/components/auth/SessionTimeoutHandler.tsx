@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 // Configuration: 5 minutes total, warning at 4 minutes
 const INACTIVITY_TIMEOUT = 5 * 60 * 1000; 
 const WARNING_TIMEOUT = 4 * 60 * 1000; 
-const STORAGE_KEY = "agrilink-last-activity";
+const STORAGE_KEY = "fsc-last-activity";
 
 /**
  * SessionTimeoutHandler monitors user activity and automatically logs out

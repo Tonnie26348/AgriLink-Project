@@ -50,9 +50,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       manifest: {
-        name: 'AgriLink Kenya',
-        short_name: 'AgriLink',
-        description: 'Directly connecting Kenyan farmers with buyers for fair trade.',
+        name: 'Food Supply Chain',
+        short_name: 'FSC',
+        description: 'Connecting farmers and food buyers through transparent trading and digital commerce.',
         theme_color: '#10b981',
         background_color: '#ffffff',
         display: 'standalone',

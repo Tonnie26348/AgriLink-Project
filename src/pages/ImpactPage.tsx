@@ -9,7 +9,7 @@ const ImpactPage = () => {
 
   const impacts = [
     { icon: TrendingUp, stat: incomeIncrease, label: "Income Increase", description: "Average farmer income increase" },
-    { icon: Users, stat: totalUsers, label: "Users Connected", description: "Farmers and buyers on AgriLink" },
+    { icon: Users, stat: totalUsers, label: "Users Connected", description: "Farmers and buyers on Food Supply Chain" },
     { icon: Leaf, stat: reductionWaste, label: "Less Waste", description: "Reduction in post-harvest losses" },
     { icon: Globe, stat: counties, label: "Counties", description: "Kenyan counties covered" },
   ];
@@ -45,8 +45,8 @@ const ImpactPage = () => {
                 <span className="text-secondary block mt-2">Agriculture</span>
               </h1>
               <p className="text-xl text-primary-foreground/80 leading-relaxed font-light mb-8">
-                AgriLink is more than a platform — it's a movement to empower farmers, 
-                create fair markets, and build sustainable food systems.
+                Food Supply Chain is more than a platform — it's a movement to empower farmers, 
+                create fair markets, and build sustainable food supply networks.
               </p>
               <Button size="lg" variant="secondary" className="shadow-soft hover:scale-105 transition-transform">
                 Discover Our Impact

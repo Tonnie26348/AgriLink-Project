@@ -1,1 +1,1 @@
-export const CART_STORAGE_KEY = "agrilink_cart";
+export const CART_STORAGE_KEY = "fsc_cart";

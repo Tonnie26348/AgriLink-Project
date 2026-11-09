@@ -69,7 +69,7 @@ const HowItWorksPage = () => {
           </h1>
           <p className="text-lg text-muted-foreground">
             Whether you're a farmer selling produce or a buyer sourcing fresh goods, 
-            AgriLink makes the process seamless.
+            Food Supply Chain makes the process seamless.
           </p>
         </div>
 

@@ -9,7 +9,7 @@ const PageLoader = () => {
         <Loader2 className="w-16 h-16 text-primary animate-spin absolute top-0 left-0" />
       </div>
       <p className="mt-4 text-sm font-bold text-primary uppercase tracking-widest animate-pulse">
-        Loading AgriLink...
+        Loading Food Supply Chain...
       </p>
     </div>
   );

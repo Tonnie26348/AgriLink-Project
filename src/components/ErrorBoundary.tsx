@@ -65,7 +65,7 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
             
             <p className="text-sm text-muted-foreground pt-4">
-              If the problem persists, please contact AgriLink support.
+              If the problem persists, please contact Food Supply Chain support.
             </p>
           </div>
         </div>
