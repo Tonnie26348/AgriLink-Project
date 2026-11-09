@@ -129,7 +129,7 @@ const CartSheet = () => {
             </SheetTitle>
           </SheetHeader>
 
-          {items.length === 0 ? (
+          {(!items || items.length === 0) ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
               <ShoppingBag className="w-16 h-16 text-muted-foreground/50 mb-4" />
               <h3 className="font-semibold text-foreground mb-1">Cart is empty</h3>

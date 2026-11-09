@@ -78,11 +78,14 @@ export const useMarketplace = (options: UseMarketplaceOptions = {}) => {
       const { data, error } = await query;
       if (error) throw error;
 
-      return (data || []).map((item) => ({
-        ...item,
-        farmer_name: (item as any).farmer_name || "Local Farmer",
-        farmer_location: (item as any).farmer_location || "Kenya",
-      })) as MarketplaceListing[];
+      return (data || []).map((item) => {
+        const record = item as Record<string, unknown>;
+        return {
+          ...item,
+          farmer_name: (record.farmer_name as string) || "Local Farmer",
+          farmer_location: (record.farmer_location as string) || "Kenya",
+        };
+      }) as MarketplaceListing[];
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {

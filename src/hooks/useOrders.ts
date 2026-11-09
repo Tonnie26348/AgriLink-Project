@@ -271,7 +271,7 @@ export const useOrders = () => {
 
     // Subscribe to real-time changes
     const channel = supabase
-      .channel('orders-realtime')
+      .channel(`orders-realtime-${user?.id || 'anon'}-${Math.random().toString(36).substring(7)}`)
       .on(
         'postgres_changes',
         {
