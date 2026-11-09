@@ -65,7 +65,7 @@ const AIInsights = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-6">
                 <Sparkles className="w-3.5 h-3.5" />
-                The AgriLink Intelligence Suite
+                The Food Supply Chain Intelligence Suite
               </span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-foreground tracking-tight leading-[1.1]">
                 Four AIs.<br />

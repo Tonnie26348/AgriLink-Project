@@ -54,8 +54,8 @@ const Impact = () => {
             <span className="text-secondary"> Agriculture</span>
           </h2>
           <p className="text-lg text-primary-foreground/80 mb-8">
-            AgriLink is more than a platform — it's a movement to empower farmers, 
-            create fair markets, and build sustainable food systems.
+            Food Supply Chain is more than a platform — it's a movement to empower farmers, 
+            create fair markets, and build sustainable food supply networks.
           </p>
           <Link to="/impact">
             <Button size="lg" variant="secondary">

@@ -19,7 +19,7 @@ const steps = [
     step: 3,
     icon: Truck,
     title: "Secure Transactions",
-    description: "AgriLink facilitates secure payment processing and offers logistics support, ensuring smooth and reliable delivery of produce from farm to market."
+    description: "Food Supply Chain facilitates secure payment processing and offers logistics support, ensuring smooth and reliable delivery of produce from farm to market."
   }
 ];
 
@@ -38,7 +38,7 @@ const HowItWorks = () => {
           </h2>
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
             Whether you're a farmer selling produce or a buyer sourcing fresh goods, 
-            AgriLink makes the process seamless.
+            Food Supply Chain makes the process seamless.
           </p>
         </div>
 

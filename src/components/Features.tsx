@@ -48,7 +48,7 @@ const Features = () => {
         {/* Section Header */}
         <div className="max-w-3xl mx-auto mb-20 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-full text-sm font-semibold mb-6 shadow-sm">
-            Why Choose AgriLink
+            Why Choose Food Supply Chain
           </span>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground mb-6 tracking-tight">
             Everything You Need to
@@ -56,8 +56,8 @@ const Features = () => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"> Trade Smarter</span>
           </h2>
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-            AgriLink provides all the tools farmers and buyers need for transparent,
-            efficient agricultural trade. Explore our comprehensive features designed to maximize your profits.
+            Food Supply Chain provides all the tools farmers and buyers need for transparent,
+            efficient agricultural trade. Explore our comprehensive features designed to maximize your success.
           </p>
         </div>
 

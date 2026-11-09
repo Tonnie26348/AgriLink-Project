@@ -56,8 +56,8 @@ const Header = () => {
               <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-display font-bold text-foreground leading-none">
-                Agri<span className="text-primary">Link</span>
+              <span className="text-lg md:text-xl font-display font-bold text-foreground leading-none">
+                Food <span className="text-primary">Supply Chain</span>
               </span>
               <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase hidden sm:block">
                 Farm to Market
@@ -141,9 +141,9 @@ const Header = () => {
                 <SheetHeader className="text-left pb-6 border-b border-border/50">
                   <SheetTitle className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
-                      <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
+                      <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain p-1" />
                     </div>
-                    <span className="font-display font-bold text-xl">AgriLink</span>
+                    <span className="font-display font-bold text-lg">Food Supply Chain</span>
                   </SheetTitle>
                 </SheetHeader>
                 

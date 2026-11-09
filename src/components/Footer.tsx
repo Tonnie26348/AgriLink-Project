@@ -32,14 +32,14 @@ const Footer = () => {
           <div className="lg:col-span-4 space-y-6">
             <a href="/" className="flex items-center gap-3">
               <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
-                <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
+                <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-2xl font-display font-bold text-white">
-                Agri<span className="text-primary">Link</span>
+              <span className="text-xl font-display font-bold text-white">
+                Food <span className="text-primary">Supply Chain</span>
               </span>
             </a>
             <p className="text-gray-400 max-w-sm leading-relaxed">
-              Empowering Kenyan farmers with direct market access, fair pricing through AI transparency, and secure transactions.
+              Empowering farmers and buyers with direct market access, transparent trading through AI insights, and secure digital commerce.
             </p>
             <div className="flex items-center gap-4 pt-2">
               {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
@@ -106,7 +106,7 @@ const Footer = () => {
             <div className="mt-8 space-y-3">
               <div className="flex items-center gap-3 text-gray-400">
                 <Mail className="w-4 h-4 text-primary" />
-                <span>hello@agrilink.co.ke</span>
+                <span>hello@foodsupplychain.co.ke</span>
               </div>
               <div className="flex items-center gap-3 text-gray-400">
                 <Phone className="w-4 h-4 text-primary" />
@@ -123,7 +123,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} AgriLink. All rights reserved.
+            © {new Date().getFullYear()} Food Supply Chain. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-gray-500">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>

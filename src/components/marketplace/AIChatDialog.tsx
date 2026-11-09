@@ -32,7 +32,7 @@ const AIChatDialog = ({ open, onOpenChange, initialMessage }: AIChatDialogProps)
   useEffect(() => {
     if (open && messages.length === 0) {
       setMessages([
-        { role: "model", text: initialMessage || "Hello! I'm your AgriLink AI assistant. How can I help you today?" }
+        { role: "model", text: initialMessage || "Hello! I'm your Food Supply Chain AI assistant. How can I help you today?" }
       ]);
     }
   }, [open, initialMessage, messages.length]);
@@ -99,7 +99,7 @@ const AIChatDialog = ({ open, onOpenChange, initialMessage }: AIChatDialogProps)
               <Bot className="w-5 h-5 text-secondary-foreground" />
             </div>
             <div>
-              <span className="text-sm font-bold">AgriLink Assistant</span>
+              <span className="text-sm font-bold">Supply Chain Assistant</span>
               <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5 text-secondary" /> AI Powered
               </p>

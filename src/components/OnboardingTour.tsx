@@ -20,7 +20,7 @@ const OnboardingTour = () => {
 
   useEffect(() => {
     if (user) {
-      const hasSeenTour = localStorage.getItem(`agrilink-tour-${user.id}`);
+      const hasSeenTour = localStorage.getItem(`fsc-tour-${user.id}`);
       if (!hasSeenTour) {
         setOpen(true);
       }
@@ -29,15 +29,15 @@ const OnboardingTour = () => {
 
   const handleComplete = () => {
     if (user) {
-      localStorage.setItem(`agrilink-tour-${user.id}`, "true");
+      localStorage.setItem(`fsc-tour-${user.id}`, "true");
     }
     setOpen(false);
   };
 
   const farmerSteps = [
     {
-      title: "Welcome to AgriLink Farmer!",
-      description: "We're excited to help you grow your business and connect with buyers directly.",
+      title: "Welcome to Food Supply Chain!",
+      description: "We're excited to help you grow your farming business and connect with buyers directly.",
       icon: <Tractor className="w-12 h-12 text-primary" />,
     },
     {
@@ -54,7 +54,7 @@ const OnboardingTour = () => {
 
   const buyerSteps = [
     {
-      title: "Welcome to AgriLink Marketplace!",
+      title: "Welcome to Food Supply Chain Marketplace!",
       description: "Source the freshest produce directly from verified local farmers at fair prices.",
       icon: <ShoppingBag className="w-12 h-12 text-secondary" />,
     },

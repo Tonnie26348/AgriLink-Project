@@ -10,7 +10,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.ai_insights": "AI Insights",
     "nav.impact": "Impact",
     "hero.title": "Connect Farm to Market Directly",
-    "hero.subtitle": "AgriLink eliminates middlemen by bridging farmers and buyers with transparent pricing and direct trade.",
+    "hero.subtitle": "Food Supply Chain eliminates middlemen by bridging farmers and buyers with transparent pricing and direct trade.",
     "market.search": "What are you looking for?",
     "market.filters": "Filters",
     "market.categories": "Categories",
@@ -27,7 +27,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.ai_insights": "Uchambuzi wa AI",
     "nav.impact": "Matokeo",
     "hero.title": "Unganisha Shamba na Soko Moja kwa Moja",
-    "hero.subtitle": "AgriLink huondoa madalali kwa kuunganisha wakulima na wanunuzi kwa bei wazi na biashara ya moja kwa moja.",
+    "hero.subtitle": "Food Supply Chain huondoa madalali kwa kuunganisha wakulima na wanunuzi kwa bei wazi na biashara ya moja kwa moja.",
     "market.search": "Unatafuta nini leo?",
     "market.filters": "Vichujio",
     "market.categories": "Jamii",
@@ -42,11 +42,11 @@ const translations: Record<Language, Record<string, string>> = {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {
-    return (localStorage.getItem("agrilink-lang") as Language) || "en";
+    return (localStorage.getItem("fsc-lang") as Language) || "en";
   });
 
   useEffect(() => {
-    localStorage.setItem("agrilink-lang", language);
+    localStorage.setItem("fsc-lang", language);
     document.documentElement.lang = language;
   }, [language]);
 

@@ -46,11 +46,11 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
           <div className={cn(
             "w-16 h-16 flex items-center justify-center transition-all duration-300 overflow-hidden"
           )}>
-            <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-display font-bold text-foreground leading-none">
-              Agri<span className={role === "farmer" ? "text-primary" : "text-secondary"}>Link</span>
+            <span className="text-base font-display font-bold text-foreground leading-tight">
+              Food <span className={role === "farmer" ? "text-primary" : "text-secondary"}>Supply Chain</span>
             </span>
             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1">
               {role} Portal
@@ -127,9 +127,9 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
               "w-8 h-8 rounded-lg flex items-center justify-center shadow-soft overflow-hidden",
               role === "farmer" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
             )}>
-              <img src="/logo.png" alt="AgriLink Logo" className="w-full h-full object-contain p-1" />
+              <img src="/logo.png" alt="Food Supply Chain Logo" className="w-full h-full object-contain p-1" />
             </div>
-            <span className="font-display font-bold text-lg">AgriLink</span>
+            <span className="font-display font-bold text-base">Food Supply Chain</span>
           </Link>
 
           <div className="flex items-center gap-2">
@@ -182,7 +182,7 @@ const DashboardLayout = ({ children, navItems, role }: DashboardLayoutProps) => 
           <footer className="py-8 border-t border-border/10 mt-auto bg-background/40 shrink-0">
             <div className="container mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                © {new Date().getFullYear()} AgriLink {role} Portal
+                © {new Date().getFullYear()} Food Supply Chain {role} Portal
               </p>
               <div className="flex gap-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 <a href="#" className="hover:text-primary transition-colors">Privacy</a>
