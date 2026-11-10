@@ -98,15 +98,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       options: {
         data: {
           full_name: fullName,
-          role: role, // Pass role here so the DB trigger can pick it up
+          role: role,
         },
       },
     });
 
     if (error) return { error };
 
-    // We no longer need to insert into user_roles manually here.
-    // The database trigger 'on_auth_user_created' now handles it.
+    // Explicitly upsert profile and user role client-side to guarantee correct assignment
+    if (data?.user) {
+      try {
+        await supabase.from("profiles").upsert({
+          user_id: data.user.id,
+          full_name: fullName,
+          email: email,
+        }, { onConflict: "user_id" });
+
+        await supabase.from("user_roles").upsert({
+          user_id: data.user.id,
+          role: role,
+        }, { onConflict: "user_id" });
+      } catch (err) {
+        console.error("AuthContext: Error explicit upserting role/profile during signup:", err);
+      }
+    }
 
     return { error: null };
   };

@@ -47,3 +47,40 @@ FOR INSERT WITH CHECK (auth.uid() = farmer_id);
 CREATE POLICY "Public profiles viewable" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Public listings viewable" ON public.produce_listings FOR SELECT USING (true);
+
+-- 6. Robust User Creation & Role Assignment Trigger
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+    user_role public.app_role;
+BEGIN
+    -- Extract role from raw_user_meta_data, default to buyer if missing or invalid
+    BEGIN
+        user_role := (NEW.raw_user_meta_data->>'role')::public.app_role;
+    EXCEPTION WHEN OTHERS THEN
+        user_role := 'buyer'::public.app_role;
+    END;
+
+    IF user_role IS NULL THEN
+        user_role := 'buyer'::public.app_role;
+    END IF;
+
+    -- Insert into profiles
+    INSERT INTO public.profiles (user_id, full_name)
+    VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', 'User'))
+    ON CONFLICT (user_id) DO NOTHING;
+
+    -- Insert into user_roles
+    INSERT INTO public.user_roles (user_id, role)
+    VALUES (NEW.id, user_role)
+    ON CONFLICT (user_id) DO UPDATE SET role = EXCLUDED.role;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
