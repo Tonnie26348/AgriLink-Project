@@ -47,10 +47,14 @@ const Signup = () => {
     const { error } = await signUp(email, password, fullName, role);
 
     if (error) {
+      let description = error.message;
+      if (description.toLowerCase().includes("rate limit")) {
+        description = "Email rate limit exceeded. Please disable 'Confirm email' in your Supabase Dashboard (Authentication -> Providers -> Email) or log in if your account was already created.";
+      }
       toast({
         variant: "destructive",
         title: "Signup failed",
-        description: error.message,
+        description: description,
       });
       setIsLoading(false);
     } else {
